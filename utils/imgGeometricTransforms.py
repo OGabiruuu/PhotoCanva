@@ -6,30 +6,118 @@ import numpy as np
 # Funções auxiliares
 # --------------------
 
-def mat_inv_translation(ti, tj):
+def mat_inv_translation(ty, tx):
     return np.array([
-        [1, 0, -ti],
-        [0, 1, -tj],
+        [1, 0, -ty],
+        [0, 1, -tx],
         [0, 0, 1]
     ])
 
 def mat_inv_rotation(theta):
+    # Convertendo para radianos, pois esse é o input padrão das funções np.sin() e np.cosin()
+    angle = np.radians(theta)
+
     return np.array([
-        [np.cos(theta), np.sin(theta), 0],
-        [-np.sin(theta), np.cos(theta), 0],
+        [np.cos(angle), np.sin(angle), 0],
+        [-np.sin(angle), np.cos(angle), 0],
         [0, 0, 1]
     ])
 
-def mat_inv_scale(si, sj):
+def mat_inv_scale(sy, sx):
     return np.array([
-        [1.0/si, 0, 0],
-        [0, 1.0/sj, 0],
+        [1.0/sy, 0, 0],
+        [0, 1.0/sx, 0],
         [0, 0, 1]
     ])
 
 
 #---------------------
-# Funções de aplicação das transformações corrigidas
+# Matrizes de transformação corrigidas para evitar bordas escuras
+# --------------------
+
+def calculate_scale_factor_for_rotation(og_w, og_h, theta, old_scale=1.0):
+    """
+    Calcula as novas dimensões para aplicar a escala minima que retiraria as bordas
+    escuras resultantes da rotação de uma imagem a partir das novos limites gerados
+    """
+
+    # Convertendo em radianos para o calculo da projeção
+    angle = np.radians(theta)
+
+    # Calculando as dimensões da nova caixa limitadora
+    new_w = abs(og_h * np.sin(angle)) + abs(og_w * np.cos(angle))
+    new_h = abs(og_h * np.cos(angle)) + abs(og_w * np.sin(angle))
+
+    # Obendo como fator o maximo entre a razão da nova largura com a original
+    # a da nova altura com a original
+    scale_factor = max(new_h / og_h, new_w / og_w)
+
+    # Verificando se as escalas anteriores já não corrigem o problema da borda
+    if old_scale >= scale_factor:
+        return 1.0
+
+    return scale_factor / old_scale
+
+
+def calculate_scale_factor_for_translation(og_w, og_h, ty, tx, old_scale=1.0):
+    """
+    Calcula as novas dimensões para aplicar a escala minima que retiraria as bordas
+    escuras resultantes da translação de uma imagem a partir das novos limites gerados
+    """
+
+    # Calculando o fator de escala faltante (isso se a escala anterior já não cobriu tudo)
+    scale_factor = max(1 + (2 * abs(tx) / w), 1 + (2 * abs(ty) / h))
+
+    # Verificando se as escalas anteriores já não impediram o surgimento das bordas
+    if old_scale >= scale_factor:
+        return 1.0
+
+    # Se não, retornaremos o que faltou escalar
+    return scale_factor / old_scale
+
+
+def mat_translate_and_scale(img, ty, tx, old_scale=1.0):
+    # Obtendo as dimensões da imagem
+    h, w = img.shape[:2]
+
+    # Gerando a matriz de correção da escala (se necessário)
+    required_scale = calculate_scale_factor_for_translation(w, h, ty, tx, old_scale)
+    if required_scale != 1.0:
+        mat = mat_inv_translation(-h/2, -w/2)
+        mat = mat @ mat_inv_scale(required_scale, required_scale)
+        mat = mat @ mat_inv_translation(h/2, w/2)
+        mat = mat @ mat_inv_translation(ty, tx)
+    else:
+        mat = mat_inv_translation(ty, tx)
+
+    return mat
+
+
+def mat_rotate_and_scale(img, theta, old_scale=1.0):
+    # Obtendo as dimensões da imagem
+    h, w = img.shape[:2]
+
+    # Gerando a matriz de rotação no própxio eixo
+    mat = mat_inv_translation(-h/2.0, -w/2.0)
+    mat = mat @ mat_inv_rotation(theta)
+
+    # Calculando o fator de escala para correção de borda e o aplicando se necessário
+    scale_factor = calculate_scale_factor_for_rotation(w, h, theta, old_scale)
+
+    print(scale_factor)
+
+    if scale_factor != 1.0:
+        mat = mat @ mat_inv_scale(scale_factor, scale_factor)
+
+    # Deslocando a imagem de volta para o eixo original
+    mat = mat @ mat_inv_translation(h/2.0, w/2.0)
+
+    return mat
+
+
+
+#---------------------
+# Funções de aplicação da tranformação geométrica final
 # --------------------
 
 def apply_inverse_transform(img, matrix_inv):
@@ -64,17 +152,25 @@ def apply_inverse_transform(img, matrix_inv):
 # --------------------
 
 if __name__ == "__main__":
-    img = iio.imread("../testImgs/img.jpg")
-    h, w, _ = img.shape
+    img = iio.imread("../testImgs/pompom_segredo.bmp")
+    h, w = img.shape[:2]
 
-    # Criando a matrix para rodar de ponta cabeça com a escala aumentada (de ponta cabeça)
-    mat_inv = mat_inv_translation(-h/2.0, -w/2.0)
-    mat_inv = mat_inv @ mat_inv_scale(5, 5)
-    mat_inv = mat_inv @ mat_inv_rotation(np.radians(-180))
+    # Criando uma matriz de transformação de teste
+    #mat = mat_inv_translation(-h/2, -w/2)
+    #mat = mat @ mat_inv_scale(1.19, 1.19)
+    #mat = mat @ mat_inv_translation(h/2, w/2)
 
-    # Para tornar seu centro o centro do eixo de coord.
-    mat_inv = mat_inv @ mat_inv_translation(h/2.0, w/2.0)
+    #mat = mat @ mat_inv_translation(0, 50)    # empurra 0 para baixo e 50 para a direita
+
+    mat_final = mat_inv_translation(-h/2, -w/2)
+    mat_final = mat_final @ mat_inv_scale(1.4, 1.4)
+    mat_final = mat_final @ mat_inv_translation(h/2, w/2)
+
+
+    mat = mat_rotate_and_scale(img, 50, 1.4)
+
+    mat_final = mat_final @ mat
 
     # Aplicando a transformação e reescalando
-    img = apply_inverse_transform(img, mat_inv)
+    img = apply_inverse_transform(img, mat_final)
     iio.imwrite('../testImgs/out.jpg', img)
