@@ -31,6 +31,7 @@ def mat_inv_scale(sy, sx):
     ])
 
 
+
 #---------------------
 # Matrizes de transformação corrigidas para evitar bordas escuras
 # --------------------
@@ -61,7 +62,7 @@ def calculate_scale_factor_for_rotation(og_w, og_h, theta, old_scale=1.0):
 
 def calculate_scale_factor_for_translation(og_w, og_h, ty, tx, old_scale=1.0):
     """
-    Calcula as novas dimensões para aplicar a escala minima que retiraria as bordas
+    Calcula as novas dimensões para aplicar a escala mínima que retiraria as bordas
     escuras resultantes da translação de uma imagem a partir das novos limites gerados
     """
 
@@ -77,6 +78,11 @@ def calculate_scale_factor_for_translation(og_w, og_h, ty, tx, old_scale=1.0):
 
 
 def mat_translate_and_scale(img, ty, tx, old_scale=1.0):
+    """
+    Aplica a translação e corrige seus artefatos com uma escala (caso escalas passadas já
+    não tenha os corrigido acidentalmente)
+    """
+
     # Obtendo as dimensões da imagem
     h, w = img.shape[:2]
 
@@ -94,6 +100,11 @@ def mat_translate_and_scale(img, ty, tx, old_scale=1.0):
 
 
 def mat_rotate_and_scale(img, theta, old_scale=1.0):
+    """
+    Aplica a rotação e corrige seus artefatos com uma escala (caso escalas passadas já
+    não tenha os corrigido acidentalmente)
+    """
+
     # Obtendo as dimensões da imagem
     h, w = img.shape[:2]
 
@@ -115,6 +126,19 @@ def mat_rotate_and_scale(img, theta, old_scale=1.0):
     return mat
 
 
+def mat_scale_from_center(img, sy, sx):
+    """
+    Aplica a escala em uma imagem a partir do seu centro pelo uso de translações.
+    Possívelmente eu apagarei essa função no futuro...
+    """
+
+    # Obtendo as dimensões da imagem
+    h, w = img.shape[:2]
+
+    # Usando translações para gerar a matriz de escala correta
+    mat = mat_inv_translation(-h/2.0, -w/2.0)
+    mat = mat @ mat_inv_scale(sy, sx)
+    mat = mat @ mat_inv_translation(h/2.0, w/2.0)
 
 #---------------------
 # Funções de aplicação da tranformação geométrica final
@@ -147,6 +171,7 @@ def apply_inverse_transform(img, matrix_inv):
     return new_img
 
 
+
 # --------------------
 # Teste
 # --------------------
@@ -160,7 +185,7 @@ if __name__ == "__main__":
     #mat = mat @ mat_inv_scale(1.19, 1.19)
     #mat = mat @ mat_inv_translation(h/2, w/2)
 
-    #mat = mat @ mat_inv_translation(0, 50)    # empurra 0 para baixo e 50 para a direita
+    #mat = mat @ mat_inv_translation(0, 50)
 
     mat_final = mat_inv_translation(-h/2, -w/2)
     mat_final = mat_final @ mat_inv_scale(1.4, 1.4)
