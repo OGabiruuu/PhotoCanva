@@ -38,9 +38,9 @@ def apply_inverse_transform(img, matrix_inv):
     a transformação e retorna a imagem final.
     """
 
-    # Criando a nova imagem com 0 para evitar buracos
+    # Criando a nova imagem com 0s para evitar buracos
     new_img = np.zeros_like(img)
-    h, w, _ = img.shape
+    h, w = img.shape[:2]
 
     # Para cara pixel da nova imagem, fazemos o endereçamento invertido
     for i in range(h):
@@ -64,7 +64,7 @@ def apply_inverse_transform(img, matrix_inv):
 # --------------------
 
 if __name__ == "__main__":
-    img = iio.imread("../tests/img.jpg")
+    img = iio.imread("../testImgs/img.jpg")
     h, w, _ = img.shape
 
     # Criando a matrix para rodar de ponta cabeça com a escala aumentada (de ponta cabeça)
@@ -77,4 +77,4 @@ if __name__ == "__main__":
 
     # Aplicando a transformação e reescalando
     img = apply_inverse_transform(img, mat_inv)
-    iio.imwrite('../outImgs/out1.jpg', img)
+    iio.imwrite('../testImgs/out.jpg', img)
