@@ -1,19 +1,27 @@
 import imageio.v3 as iio
 import numpy as np
 
+# Lista das funções públicas exporáveis com "*"
+__all__ = [
+    'apply_inverse_transform',
+    'mat_rotate_and_scale',
+    'mat_translate_and_scale',
+    'mat_scale_from_center',
+]
+
 
 #---------------------
 # Funções auxiliares
 # --------------------
 
-def mat_inv_translation(ty, tx):
+def _mat_inv_translation(ty, tx):
     return np.array([
         [1, 0, -ty],
         [0, 1, -tx],
         [0, 0, 1]
     ])
 
-def mat_inv_rotation(theta):
+def _mat_inv_rotation(theta):
     # Convertendo para radianos, pois esse é o input padrão das funções np.sin() e np.cosin()
     angle = np.radians(theta)
 
@@ -23,7 +31,7 @@ def mat_inv_rotation(theta):
         [0, 0, 1]
     ])
 
-def mat_inv_scale(sy, sx):
+def _mat_inv_scale(sy, sx):
     return np.array([
         [1.0/sy, 0, 0],
         [0, 1.0/sx, 0],
@@ -36,7 +44,7 @@ def mat_inv_scale(sy, sx):
 # Matrizes de transformação corrigidas para evitar bordas escuras
 # --------------------
 
-def calculate_scale_factor_for_rotation(og_w, og_h, theta, old_scale=1.0):
+def _calculate_scale_factor_for_rotation(og_w, og_h, theta, old_scale=1.0):
     """
     Calcula as novas dimensões para aplicar a escala minima que retiraria as bordas
     escuras resultantes da rotação de uma imagem a partir das novos limites gerados
@@ -60,7 +68,7 @@ def calculate_scale_factor_for_rotation(og_w, og_h, theta, old_scale=1.0):
     return scale_factor / old_scale
 
 
-def calculate_scale_factor_for_translation(og_w, og_h, ty, tx, old_scale=1.0):
+def _calculate_scale_factor_for_translation(og_w, og_h, ty, tx, old_scale=1.0):
     """
     Calcula as novas dimensões para aplicar a escala mínima que retiraria as bordas
     escuras resultantes da translação de uma imagem a partir das novos limites gerados
@@ -95,14 +103,14 @@ def mat_translate_and_scale(img, ty, tx, old_scale=1.0):
     h, w = img.shape[:2]
 
     # Gerando a matriz de correção da escala (se necessário)
-    required_scale = calculate_scale_factor_for_translation(w, h, ty, tx, old_scale)
+    required_scale = _calculate_scale_factor_for_translation(w, h, ty, tx, old_scale)
     if required_scale != 1.0:
-        mat = mat_inv_translation(-h/2, -w/2)
-        mat = mat @ mat_inv_scale(required_scale, required_scale)
-        mat = mat @ mat_inv_translation(h/2, w/2)
-        mat = mat @ mat_inv_translation(ty, tx)
+        mat = _mat_inv_translation(-h/2, -w/2)
+        mat = mat @ _mat_inv_scale(required_scale, required_scale)
+        mat = mat @ _mat_inv_translation(h/2, w/2)
+        mat = mat @ _mat_inv_translation(ty, tx)
     else:
-        mat = mat_inv_translation(ty, tx)
+        mat = _mat_inv_translation(ty, tx)
 
     return mat
 
@@ -121,19 +129,19 @@ def mat_rotate_and_scale(img, theta, old_scale=1.0):
     h, w = img.shape[:2]
 
     # Gerando a matriz de rotação no própxio eixo
-    mat = mat_inv_translation(-h/2.0, -w/2.0)
-    mat = mat @ mat_inv_rotation(theta)
+    mat = _mat_inv_translation(-h/2.0, -w/2.0)
+    mat = mat @ _mat_inv_rotation(theta)
 
     # Calculando o fator de escala para correção de borda e o aplicando se necessário
-    scale_factor = calculate_scale_factor_for_rotation(w, h, theta, old_scale)
+    scale_factor = _calculate_scale_factor_for_rotation(w, h, theta, old_scale)
 
     print(scale_factor)
 
     if scale_factor != 1.0:
-        mat = mat @ mat_inv_scale(scale_factor, scale_factor)
+        mat = mat @ _mat_inv_scale(scale_factor, scale_factor)
 
     # Deslocando a imagem de volta para o eixo original
-    mat = mat @ mat_inv_translation(h/2.0, w/2.0)
+    mat = mat @ _mat_inv_translation(h/2.0, w/2.0)
 
     return mat
 
@@ -148,9 +156,9 @@ def mat_scale_from_center(img, sy, sx):
     h, w = img.shape[:2]
 
     # Usando translações para gerar a matriz de escala correta
-    mat = mat_inv_translation(-h/2.0, -w/2.0)
-    mat = mat @ mat_inv_scale(sy, sx)
-    mat = mat @ mat_inv_translation(h/2.0, w/2.0)
+    mat = _mat_inv_translation(-h/2.0, -w/2.0)
+    mat = mat @ _mat_inv_scale(sy, sx)
+    mat = mat @ _mat_inv_translation(h/2.0, w/2.0)
 
 #---------------------
 # Funções de aplicação da tranformação geométrica final
@@ -199,15 +207,15 @@ if __name__ == "__main__":
     h, w = img.shape[:2]
 
     # Criando uma matriz de transformação de teste
-    #mat = mat_inv_translation(-h/2, -w/2)
-    #mat = mat @ mat_inv_scale(1.19, 1.19)
-    #mat = mat @ mat_inv_translation(h/2, w/2)
+    #mat = _mat_inv_translation(-h/2, -w/2)
+    #mat = _mat @ mat_inv_scale(1.19, 1.19)
+    #mat = _mat @ mat_inv_translation(h/2, w/2)
 
-    #mat = mat @ mat_inv_translation(0, 50)
+    #mat = mat @ _mat_inv_translation(0, 50)
 
-    mat_final = mat_inv_translation(-h/2, -w/2)
-    mat_final = mat_final @ mat_inv_scale(1.4, 1.4)
-    mat_final = mat_final @ mat_inv_translation(h/2, w/2)
+    mat_final = _mat_inv_translation(-h/2, -w/2)
+    mat_final = mat_final @ _mat_inv_scale(1.4, 1.4)
+    mat_final = mat_final @ _mat_inv_translation(h/2, w/2)
 
 
     mat = mat_rotate_and_scale(img, 50, 1.4)
