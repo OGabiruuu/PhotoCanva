@@ -79,8 +79,16 @@ def calculate_scale_factor_for_translation(og_w, og_h, ty, tx, old_scale=1.0):
 
 def mat_translate_and_scale(img, ty, tx, old_scale=1.0):
     """
-    Aplica a translação e corrige seus artefatos com uma escala (caso escalas passadas já
-    não tenha os corrigido acidentalmente)
+    Cria a matriz translação com a correção dos seus artefatos com escala (se necessário).
+
+    Parâmetros:
+        img: Imagem em np.array
+        ty: Deslocamento no eixo Y
+        tx: Deslocamento no eixo X
+        old_scale: Produto de todas as escalas aplicadas anteriormente nessa imagem
+
+    Retorno:
+        Matrix de translação corrigida com a escala
     """
 
     # Obtendo as dimensões da imagem
@@ -101,8 +109,12 @@ def mat_translate_and_scale(img, ty, tx, old_scale=1.0):
 
 def mat_rotate_and_scale(img, theta, old_scale=1.0):
     """
-    Aplica a rotação e corrige seus artefatos com uma escala (caso escalas passadas já
-    não tenha os corrigido acidentalmente)
+    Gera a matriz de rotação e corrige seus artefatos com uma escala (quando necessário).
+
+    Parâmetros:
+        img: Imagem em np.array
+        theta: ângulo de rotação em graus
+        old_scale: Produto de todas as escalas aplicadas anteriormente nessa imagem
     """
 
     # Obtendo as dimensões da imagem
@@ -146,8 +158,14 @@ def mat_scale_from_center(img, sy, sx):
 
 def apply_inverse_transform(img, matrix_inv):
     """
-    Dada uma matriz de transformação Afim, e uma imagem vetorizada com Numpy, aplica
-    a transformação e retorna a imagem final.
+    Aplica a matriz de transformação afim em uma imagem, usando o método inverso.
+
+    Parâmetros:
+        img: Imagem em np.array
+        matrix_inv: Matriz afim da transformação inversa
+
+    Retorno:
+        Imagem transformada
     """
 
     # Criando a nova imagem com 0s para evitar buracos
