@@ -1,200 +1,140 @@
 import imageio.v3 as iio
 import numpy as np
+from geometryPrimitives import mat_inv_rotation, mat_inv_scale, mat_inv_translation
+from geometryPrimitives import calculate_scale_factor_for_rotation, calculate_scale_factor_for_translation
 
-# Lista das funções públicas exporáveis com "*"
-__all__ = [
-    'apply_inverse_transform',
-    'mat_rotate_and_scale',
-    'mat_translate_and_scale',
-    'mat_scale_from_center',
-]
+class GeometryHandler:
 
-
-#---------------------
-# Funções auxiliares
-# --------------------
-
-def _mat_inv_translation(ty, tx):
-    return np.array([
-        [1, 0, -ty],
-        [0, 1, -tx],
-        [0, 0, 1]
-    ])
-
-def _mat_inv_rotation(theta):
-    # Convertendo para radianos, pois esse é o input padrão das funções np.sin() e np.cosin()
-    angle = np.radians(theta)
-
-    return np.array([
-        [np.cos(angle), np.sin(angle), 0],
-        [-np.sin(angle), np.cos(angle), 0],
-        [0, 0, 1]
-    ])
-
-def _mat_inv_scale(sy, sx):
-    return np.array([
-        [1.0/sy, 0, 0],
-        [0, 1.0/sx, 0],
-        [0, 0, 1]
-    ])
+    def __init__(self, scale_factor=1.0):
+        self.afim_matrix = np.eye(3)        # Matriz de transformação que será calculada
+        self.scale_factor = scale_factor    # Guarda o fator de escala atual da imagem
+        self.angle = 0                      # Guarda o angulo atual da imagem em graus
 
 
+    def set_mat_translate_and_scale(self, img, ty=0, tx=0):
+        """
+        Cria a matriz translação com a correção dos seus artefatos com escala (se necessário).
 
-#---------------------
-# Matrizes de transformação corrigidas para evitar bordas escuras
-# --------------------
+        Parâmetros:
+            img: Imagem em np.array
+            ty: Deslocamento no eixo Y
+            tx: Deslocamento no eixo X
+            old_scale: Produto de todas as escalas aplicadas anteriormente nessa imagem
 
-def _calculate_scale_factor_for_rotation(og_w, og_h, theta, old_scale=1.0):
-    """
-    Calcula as novas dimensões para aplicar a escala minima que retiraria as bordas
-    escuras resultantes da rotação de uma imagem a partir das novos limites gerados
-    """
+        Retorno:
+            Matrix de translação corrigida com a escala
+            fator de escala usado
+        """
 
-    # Convertendo em radianos para o calculo da projeção
-    angle = np.radians(theta)
+        # Obtendo as dimensões da imagem
+        h, w = img.shape[:2]
 
-    # Calculando as dimensões da nova caixa limitadora
-    new_w = abs(og_h * np.sin(angle)) + abs(og_w * np.cos(angle))
-    new_h = abs(og_h * np.cos(angle)) + abs(og_w * np.sin(angle))
+        # Gerando a matriz de correção da escala (se necessário)
+        required_scale = calculate_scale_factor_for_translation(w, h, ty, tx, self.angle, self.scale_factor)
+        print(f"Required: {required_scale}")
+        if required_scale != 1.0:
+            self.afim_matrix @= mat_inv_translation(-h/2, -w/2)
+            self.afim_matrix @= mat_inv_scale(required_scale, required_scale)
+            self.afim_matrix @= mat_inv_translation(h/2, w/2)
+            self.afim_matrix @= mat_inv_translation(ty, tx)
 
-    # Obendo como fator o maximo entre a razão da nova largura com a original
-    # a da nova altura com a original
-    scale_factor = max(new_h / og_h, new_w / og_w)
-
-    # Verificando se as escalas anteriores já não corrigem o problema da borda
-    if old_scale >= scale_factor:
-        return 1.0
-
-    return scale_factor / old_scale
-
-
-def _calculate_scale_factor_for_translation(og_w, og_h, ty, tx, old_scale=1.0):
-    """
-    Calcula as novas dimensões para aplicar a escala mínima que retiraria as bordas
-    escuras resultantes da translação de uma imagem a partir das novos limites gerados
-    """
-
-    # Calculando o fator de escala faltante (isso se a escala anterior já não cobriu tudo)
-    scale_factor = max(1 + (2 * abs(tx) / w), 1 + (2 * abs(ty) / h))
-
-    # Verificando se as escalas anteriores já não impediram o surgimento das bordas
-    if old_scale >= scale_factor:
-        return 1.0
-
-    # Se não, retornaremos o que faltou escalar
-    return scale_factor / old_scale
+            # Atualizando o estado da escala
+            self.scale_factor *= required_scale
+        else:
+            self.afim_matrix @= mat_inv_translation(ty, tx)
 
 
-def mat_translate_and_scale(img, ty, tx, old_scale=1.0):
-    """
-    Cria a matriz translação com a correção dos seus artefatos com escala (se necessário).
 
-    Parâmetros:
-        img: Imagem em np.array
-        ty: Deslocamento no eixo Y
-        tx: Deslocamento no eixo X
-        old_scale: Produto de todas as escalas aplicadas anteriormente nessa imagem
+    def set_mat_rotate_and_scale(self, img, theta=0):
+        """
+        Gera a matriz de rotação e corrige seus artefatos com uma escala (quando necessário).
 
-    Retorno:
-        Matrix de translação corrigida com a escala
-    """
+        Parâmetros:
+            img: Imagem em np.array
+            theta: ângulo de rotação em graus
+            old_scale: Produto de todas as escalas aplicadas anteriormente nessa imagem
 
-    # Obtendo as dimensões da imagem
-    h, w = img.shape[:2]
+        Retorno:
+            Imagem transformada
+            fator de escala aplicado
+        """
 
-    # Gerando a matriz de correção da escala (se necessário)
-    required_scale = _calculate_scale_factor_for_translation(w, h, ty, tx, old_scale)
-    if required_scale != 1.0:
-        mat = _mat_inv_translation(-h/2, -w/2)
-        mat = mat @ _mat_inv_scale(required_scale, required_scale)
-        mat = mat @ _mat_inv_translation(h/2, w/2)
-        mat = mat @ _mat_inv_translation(ty, tx)
-    else:
-        mat = _mat_inv_translation(ty, tx)
+        # Obtendo as dimensões da imagem
+        h, w = img.shape[:2]
 
-    return mat
+        # Gerando a matriz de rotação no própxio eixo
+        self.afim_matrix @= mat_inv_translation(-h/2.0, -w/2.0)
+        self.afim_matrix @= mat_inv_rotation(theta)
 
+        # Calculando o fator de escala para correção de borda e o aplicando se necessário
+        required_scale = calculate_scale_factor_for_rotation(w, h, theta, self.scale_factor)
 
-def mat_rotate_and_scale(img, theta, old_scale=1.0):
-    """
-    Gera a matriz de rotação e corrige seus artefatos com uma escala (quando necessário).
+        if required_scale != 1.0:
+            self.afim_matrix @= mat_inv_scale(required_scale, required_scale)
+            self.scale_factor *= required_scale
+            print(f"Updated scale at rotation: {self.scale_factor}")
+        self.angle = theta
 
-    Parâmetros:
-        img: Imagem em np.array
-        theta: ângulo de rotação em graus
-        old_scale: Produto de todas as escalas aplicadas anteriormente nessa imagem
-    """
-
-    # Obtendo as dimensões da imagem
-    h, w = img.shape[:2]
-
-    # Gerando a matriz de rotação no própxio eixo
-    mat = _mat_inv_translation(-h/2.0, -w/2.0)
-    mat = mat @ _mat_inv_rotation(theta)
-
-    # Calculando o fator de escala para correção de borda e o aplicando se necessário
-    scale_factor = _calculate_scale_factor_for_rotation(w, h, theta, old_scale)
-
-    print(scale_factor)
-
-    if scale_factor != 1.0:
-        mat = mat @ _mat_inv_scale(scale_factor, scale_factor)
-
-    # Deslocando a imagem de volta para o eixo original
-    mat = mat @ _mat_inv_translation(h/2.0, w/2.0)
-
-    return mat
+        # Deslocando a imagem de volta para o eixo original
+        self.afim_matrix @= mat_inv_translation(h/2.0, w/2.0)
 
 
-def mat_scale_from_center(img, sy, sx):
-    """
-    Aplica a escala em uma imagem a partir do seu centro pelo uso de translações.
-    Possívelmente eu apagarei essa função no futuro...
-    """
 
-    # Obtendo as dimensões da imagem
-    h, w = img.shape[:2]
+    def set_mat_scale_from_center(self, img, sy, sx):
+        """
+        Aplica a escala em uma imagem a partir do seu centro pelo uso de translações.
+        Possívelmente eu apagarei essa função no futuro...
 
-    # Usando translações para gerar a matriz de escala correta
-    mat = _mat_inv_translation(-h/2.0, -w/2.0)
-    mat = mat @ _mat_inv_scale(sy, sx)
-    mat = mat @ _mat_inv_translation(h/2.0, w/2.0)
+        Old_scale só está aqui para manter a interface comum com o orquestrador
+        """
 
-#---------------------
-# Funções de aplicação da tranformação geométrica final
-# --------------------
+        # Obtendo as dimensões da imagem
+        h, w = img.shape[:2]
 
-def apply_inverse_transform(img, matrix_inv):
-    """
-    Aplica a matriz de transformação afim em uma imagem, usando o método inverso.
+        # Usando translações para gerar a matriz de escala correta
+        self.afim_matrix @= mat_inv_translation(-h/2.0, -w/2.0)
+        self.afim_matrix @= mat_inv_scale(sy, sx)
+        self.afim_matrix @= mat_inv_translation(h/2.0, w/2.0)
 
-    Parâmetros:
-        img: Imagem em np.array
-        matrix_inv: Matriz afim da transformação inversa
+        # Atualizando o fator de escala
+        self.scale_factor *= max(sx, sy)
 
-    Retorno:
-        Imagem transformada
-    """
 
-    # Criando a nova imagem com 0s para evitar buracos
-    new_img = np.zeros_like(img)
-    h, w = img.shape[:2]
+    #---------------------
+    # Methodo de aplicação da tranformação geométrica final
+    # --------------------
 
-    # Para cara pixel da nova imagem, fazemos o endereçamento invertido
-    for i in range(h):
-        for j in range(w):
-            pos_arr = np.array([i, j, 1])   # Pixel da nova imagem + coord. polar
+    def apply_inverse_transform(self, img):
+        """
+        Aplica a matriz de transformação afim em uma imagem, usando o método inverso.
 
-            # Calculando as coordenadas dos pixeis correspondentes na matrix original
-            pos_old = matrix_inv @ pos_arr
-            old_i = int(np.round(pos_old[0]))
-            old_j = int(np.round(pos_old[1]))
+        Parâmetros:
+            img: Imagem em np.array
+            matrix_inv: Matriz afim da transformação inversa
 
-            # Verificando se a coordenada encontrada realmente pertence a imagem original
-            if not ((old_i < 0) or (old_j < 0) or (old_i >= h) or (old_j >= w)):
-                new_img[i, j] = img[old_i, old_j]
+        Retorno:
+            Imagem transformada
+        """
 
-    return new_img
+        # Criando a nova imagem com 0s para evitar buracos
+        new_img = np.zeros_like(img)
+        h, w = img.shape[:2]
+
+        # Para cara pixel da nova imagem, fazemos o endereçamento invertido
+        for i in range(h):
+            for j in range(w):
+                pos_arr = np.array([i, j, 1])   # Pixel da nova imagem + coord. polar
+
+                # Calculando as coordenadas dos pixeis correspondentes na matrix original
+                pos_old = self.afim_matrix @ pos_arr
+                old_i = int(np.round(pos_old[0]))
+                old_j = int(np.round(pos_old[1]))
+
+                # Verificando se a coordenada encontrada realmente pertence a imagem original
+                if not ((old_i < 0) or (old_j < 0) or (old_i >= h) or (old_j >= w)):
+                    new_img[i, j] = img[old_i, old_j]
+
+        return new_img
 
 
 
@@ -206,22 +146,31 @@ if __name__ == "__main__":
     img = iio.imread("../testImgs/pompom_segredo.bmp")
     h, w = img.shape[:2]
 
+    handler = GeometryHandler()
+
+    handler.set_mat_scale_from_center(img, 1.9, 1.9)
+    handler.set_mat_rotate_and_scale(img, 45)
+    print(f"Scale after rotation: {handler.scale_factor}")
+    handler.set_mat_translate_and_scale(img, 10, 4)
+    #handler.set_mat_scale_from_center(img, 1.04, 1.04)
+    print(f"Scale after translation: {handler.scale_factor}")
+
     # Criando uma matriz de transformação de teste
-    #mat = _mat_inv_translation(-h/2, -w/2)
-    #mat = _mat @ mat_inv_scale(1.19, 1.19)
-    #mat = _mat @ mat_inv_translation(h/2, w/2)
+    #mat = mat_inv_translation(-h/2, -w/2)
+    #mat = mat @ mat_inv_scale(1.19, 1.19)
+    #mat = mat @ mat_inv_translation(h/2, w/2)
 
-    #mat = mat @ _mat_inv_translation(0, 50)
+    #mat = mat @ mat_inv_translation(0, 50)
 
-    mat_final = _mat_inv_translation(-h/2, -w/2)
-    mat_final = mat_final @ _mat_inv_scale(1.4, 1.4)
-    mat_final = mat_final @ _mat_inv_translation(h/2, w/2)
+    #mat_final, _ = mat_inv_translation(-h/2, -w/2)[0]
+    #mat_final = mat_final @ mat_inv_scale(1.4, 1.4)[0]
+    #mat_final = mat_final @ mat_inv_translation(h/2, w/2)[0]
 
 
-    mat = mat_rotate_and_scale(img, 50, 1.4)
+    #mat = mat_rotate_and_scale(img, 50, 1.4)
 
-    mat_final = mat_final @ mat
+    #mat_final = mat_final @ mat
 
     # Aplicando a transformação e reescalando
-    img = apply_inverse_transform(img, mat_final)
+    img = handler.apply_inverse_transform(img)
     iio.imwrite('../testImgs/out.jpg', img)
