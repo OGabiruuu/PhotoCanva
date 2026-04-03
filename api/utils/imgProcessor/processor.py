@@ -1,6 +1,5 @@
 from geometry import GeometryHandler
 from intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
-import numpy as np
 
 # Registro de todas as funções de processamento implementadas (injeção de dependências da arquitetura)
 PROCESS_REGISTRY = {
