@@ -1,6 +1,14 @@
 import imageio.v3 as iio
 import numpy as np
 
+# Lista das funções públicas exporáveis com "*"
+__all__ = [
+    'invert_transform',
+    'log_transform',
+    'gamma_transform',
+    'contrast_modulation'
+]
+
 #-------------------------
 # Transformações
 #-------------------------

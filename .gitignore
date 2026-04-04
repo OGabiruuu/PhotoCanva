@@ -4,7 +4,7 @@
 ### Testes ###
 pattern.txt
 *.test
-/testImgs
+testImgs
 
 ### macOS ###
 # General
