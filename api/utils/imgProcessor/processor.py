@@ -64,14 +64,16 @@ def apply_pipeline(img, transformations):
     # Usando a classe handler para gerar corretamente a matriz de transformação geométrica
     geoProcesser = GeometryHandler()
 
-    for transform in transformations['geometric']:
-        method_str = PROCESS_REGISTRY.get(transform['type'])
-        if method_str:
-            method = geoProcesser.__getattribute__(method_str)
-            method(img, **transform['params'])
 
-    # Aplicando a transformação geométrica final
-    img = geoProcesser.apply_inverse_transform(img)
+    if len(transformations['geometric']) != 0:
+        for transform in transformations['geometric']:
+            method_str = PROCESS_REGISTRY.get(transform['type'])
+            if method_str:
+                method = geoProcesser.__getattribute__(method_str)
+                method(img, **transform['params'])
+
+        # Aplicando a transformação geométrica final
+        img = geoProcesser.apply_inverse_transform(img)
 
     # Aplicando as transformações de intensidade (Note que elas não guardam estadado. Logo, são funções comuns)
     for transform in transformations['intensity']:
