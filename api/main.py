@@ -79,4 +79,5 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             await ws.send_bytes(img_binary)
 
     except WebSocketDisconnect:
-        print("Um erro ocorreu na conexão websocket")
+        # Removendo a imagem e o preview do registro
+        img_registry.remove_img(img_session_id)
