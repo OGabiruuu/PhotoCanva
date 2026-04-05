@@ -1,7 +1,7 @@
 from typing import Literal, Optional
 from pydantic import BaseModel
-from params import RotateParams, TranslateParams, ScaleParams
-from params import IntensityContrastParams, IntensityGammaParams
+from .params import RotateParams, TranslateParams, ScaleParams
+from .params import IntensityContrastParams, IntensityGammaParams
 
 # ------------------------------------------
 #  Tipos das transformações geomátricas
@@ -27,11 +27,11 @@ class Scale(BaseModel):
 
 class IntensityInvert(BaseModel):
     type: Literal["intensity_invert"]
-    params: None
+    params: dict = {}
 
 class IntensityLog(BaseModel):
     type: Literal["intensity_log"]
-    params: None
+    params: dict = {}
 
 class IntensityGamma(BaseModel):
     type: Literal["intensity_gamma"]

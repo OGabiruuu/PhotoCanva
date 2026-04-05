@@ -1,5 +1,8 @@
-from geometry import GeometryHandler
-from intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
+import io
+import numpy as np
+from PIL import Image
+import imageio as iio
+from .intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
 
 # Registro de todas as funções de processamento implementadas (injeção de dependências da arquitetura)
 PROCESS_REGISTRY = {
@@ -15,8 +18,37 @@ PROCESS_REGISTRY = {
     "intensity_contrast": contrast_modulation,
 }
 
+def generate_img_preview(img: np.ndarray, max_width: int = 350):
+    """
+    Gera um preview de baixa resolução da imagem para diminuir a latência da comunicação
 
-def apply_pipeline(img, transformations):
+    Prâmetros:
+        img: np.ndarray da imagem original
+        max_width: Largura máxima do preview em pixeis
+
+    Retorno:
+        np.ndarray da imagem redimensionada
+    """
+
+    h, w = img.shape[:2]
+    if w <= max_width:
+        return img
+
+    # Calculando a nova altura mantendo o Aspect Ratio
+    ratio = max_width / float(w)
+    new_height = int(h * ratio)
+
+    # Convertendo para Pilow image
+    pil_img = Image.fromarray(img)
+
+    # Redimensionando
+    pil_img = pil_img.resize((max_width, new_height), resample=Image.Resampling.LANCZOS)
+
+    # Converte de volta para numpy
+    return np.array(pil_img)
+
+
+def apply_pipeline(img, transformations, geo_processer):
     """
     Orquestrador que aplica corretamente a sequencia de processamentos informada.
 
@@ -28,17 +60,16 @@ def apply_pipeline(img, transformations):
         Imagem processada
     """
 
-    # Usando a classe handler para gerar corretamente a matriz de transformação geométrica
-    geoProcesser = GeometryHandler()
 
-    for transform in transformations['geometric']:
-        method_str = PROCESS_REGISTRY.get(transform['type'])
-        if method_str:
-            method = geoProcesser.__getattribute__(method_str)
-            method(img, **transform['params'])
+    if len(transformations['geometric']) != 0:
+        for transform in transformations['geometric']:
+            method_str = PROCESS_REGISTRY.get(transform['type'])
+            if method_str:
+                method = geo_processer.__getattribute__(method_str)
+                method(img, **transform['params'])
 
-    # Aplicando a transformação geométrica final
-    geoProcesser.apply_inverse_transform(img)
+        # Aplicando a transformação geométrica final
+        img = geo_processer.apply_inverse_transform(img)
 
     # Aplicando as transformações de intensidade (Note que elas não guardam estadado. Logo, são funções comuns)
     for transform in transformations['intensity']:
@@ -48,6 +79,23 @@ def apply_pipeline(img, transformations):
 
     # Retornando a imagem final
     return img
+
+def convert_img_to_bytes(img, img_extension):
+    """
+    Converte o np.ndarray de uma imagem em bytes de um arquivo adequado para o envio em rede
+
+    Parâmetros:
+        img: np.ndarray da imagem
+        img_extension: string com a extensão do formato original da imagem
+
+    retorno:
+        buffer: Objeto Bytes contendo a imagem formatada
+    """
+
+    buffer = io.BytesIO()
+    iio.imwrite(buffer, img, img_extension)
+
+    return buffer.getvalue()
 
 
 
