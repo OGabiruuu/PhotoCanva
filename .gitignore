@@ -5,6 +5,7 @@
 pattern.txt
 *.test
 testImgs
+frontPrototype
 
 ### macOS ###
 # General
@@ -217,5 +218,6 @@ pyrightconfig.json
 
 .svelte-kit/
 package
+frontend/README.md
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,svelte
