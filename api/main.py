@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
+from utils.imgProcessor.geometry import GeometryHandler
 from utils.imgCache import ImgSessionsManager
 from utils.imgProcessor import generate_img_preview, apply_pipeline, convert_img_to_bytes
 import imageio as iio
@@ -54,8 +55,9 @@ async def edit_image(ws: WebSocket, img_session_id: str):
 
     # Preparando o loop de comunicação
     await ws.accept()
+    local_geometry_handler = GeometryHandler()
 
-    # Buscando o preview da imagem e sua extensão apra os envios contínuos
+    # Buscando a extensão da imagem para os envios contínuos
     img_preview = img_registry.get_img_preview(img_session_id)
     extension = img_registry.get_extension(img_session_id)
 
@@ -68,11 +70,12 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             # Recebendo e convertendo o json para um dicionário válido
             transform_data = await ws.receive_json()
 
-            # Aplicando as tranformações e preparando imagem
-            img_data = apply_pipeline(img_preview, transform_data)
-            img_binary = convert_img_to_bytes(img_data, extension)
+            # Aplicando as tranformações e atualizando o cache
+            img_preview = apply_pipeline(img_preview, transform_data, local_geometry_handler)
+            img_registry.set_img_preview(img_session_id, img_preview)
 
             # Enviando mensagem de resposta
+            img_binary = convert_img_to_bytes(img_preview, extension)
             await ws.send_bytes(img_binary)
 
     except WebSocketDisconnect:

@@ -2,7 +2,6 @@ import io
 import numpy as np
 from PIL import Image
 import imageio as iio
-from .geometry import GeometryHandler
 from .intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
 
 # Registro de todas as funções de processamento implementadas (injeção de dependências da arquitetura)
@@ -49,7 +48,7 @@ def generate_img_preview(img: np.ndarray, max_width: int = 350):
     return np.array(pil_img)
 
 
-def apply_pipeline(img, transformations):
+def apply_pipeline(img, transformations, geo_processer):
     """
     Orquestrador que aplica corretamente a sequencia de processamentos informada.
 
@@ -61,19 +60,16 @@ def apply_pipeline(img, transformations):
         Imagem processada
     """
 
-    # Usando a classe handler para gerar corretamente a matriz de transformação geométrica
-    geoProcesser = GeometryHandler()
-
 
     if len(transformations['geometric']) != 0:
         for transform in transformations['geometric']:
             method_str = PROCESS_REGISTRY.get(transform['type'])
             if method_str:
-                method = geoProcesser.__getattribute__(method_str)
+                method = geo_processer.__getattribute__(method_str)
                 method(img, **transform['params'])
 
         # Aplicando a transformação geométrica final
-        img = geoProcesser.apply_inverse_transform(img)
+        img = geo_processer.apply_inverse_transform(img)
 
     # Aplicando as transformações de intensidade (Note que elas não guardam estadado. Logo, são funções comuns)
     for transform in transformations['intensity']:
