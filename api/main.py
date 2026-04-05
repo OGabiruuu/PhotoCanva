@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
 from utils.imgCache import ImgSessionsManager
-from utils.imgProcessor import apply_pipeline, convert_img_to_bytes
+from utils.imgProcessor import generate_img_preview, apply_pipeline, convert_img_to_bytes
 import imageio as iio
 
 #----------------------------
@@ -37,6 +37,10 @@ async def receive_image(file: UploadFile):
     # Salvando a imagem no registro da sessão
     img_id = img_registry.add_img(img, extension)
 
+    # Gerando o preview
+    img_preview = generate_img_preview(img)
+    img_registry.set_img_preview(img_id, img_preview)
+
     # Retornando o shape da imagem como teste para o sucesso da operação
     return {"status": "success", "imgId":img_id, "shape": img.shape}
 
@@ -50,8 +54,13 @@ async def edit_image(ws: WebSocket, img_session_id: str):
 
     # Preparando o loop de comunicação
     await ws.accept()
-    img = img_registry.get_img(img_session_id)
+
+    # Buscando o preview da imagem e sua extensão apra os envios contínuos
+    img_preview = img_registry.get_img_preview(img_session_id)
     extension = img_registry.get_extension(img_session_id)
+
+    # Obtendo a imagem original para o fim da edição
+    #img = img_registry.get_img(img_session_id)
 
     # Loop principal da comunicação
     try:
@@ -60,7 +69,7 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             transform_data = await ws.receive_json()
 
             # Aplicando as tranformações e preparando imagem
-            img_data = apply_pipeline(img, transform_data)
+            img_data = apply_pipeline(img_preview, transform_data)
             img_binary = convert_img_to_bytes(img_data, extension)
 
             # Enviando mensagem de resposta
