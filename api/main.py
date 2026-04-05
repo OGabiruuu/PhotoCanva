@@ -1,4 +1,6 @@
 from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
+from pydantic import ValidationError
+from schemas.ImgProcessRequest import ImgProcessRequest
 from utils.imgProcessor.geometry import GeometryHandler
 from utils.imgCache import ImgSessionsManager
 from utils.imgProcessor import generate_img_preview, apply_pipeline, convert_img_to_bytes
@@ -67,8 +69,9 @@ async def edit_image(ws: WebSocket, img_session_id: str):
     # Loop principal da comunicação
     try:
         while True:
-            # Recebendo e convertendo o json para um dicionário válido
+            # Recebendo os dados em json e validando com o formato esperado
             transform_data = await ws.receive_json()
+            ImgProcessRequest(**transform_data)
 
             # Aplicando as tranformações e atualizando o cache
             img_preview = apply_pipeline(img_preview, transform_data, local_geometry_handler)
@@ -77,6 +80,9 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             # Enviando mensagem de resposta
             img_binary = convert_img_to_bytes(img_preview, extension)
             await ws.send_bytes(img_binary)
+
+    except ValidationError as e:
+        print(f"Formato de mensagem inválido: {e}")
 
     except WebSocketDisconnect:
         # Removendo a imagem e o preview do registro

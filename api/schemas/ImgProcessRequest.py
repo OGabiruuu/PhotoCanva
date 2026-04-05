@@ -1,8 +1,8 @@
 from typing import Union
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated
-from transforms import Rotate, Scale, Translate
-from transforms import IntensityInvert, IntensityLog, IntensityGamma, IntensityContrast
+from .transforms import Rotate, Scale, Translate
+from .transforms import IntensityInvert, IntensityLog, IntensityGamma, IntensityContrast
 
 # ------------------------------------------
 # Macrolistas de cada tipo de transformação

@@ -75,11 +75,9 @@ def apply_pipeline(img, transformations, geo_processer):
     for transform in transformations['intensity']:
         func = PROCESS_REGISTRY.get(transform["type"])
         if func:
-            print(f"Aquiiii com {func}")
             img = func(img, **transform["params"])
 
     # Retornando a imagem final
-    print(transformations)
     return img
 
 def convert_img_to_bytes(img, img_extension):
