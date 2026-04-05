@@ -1,7 +1,7 @@
 import imageio.v3 as iio
 import numpy as np
-from geometryPrimitives import mat_inv_rotation, mat_inv_scale, mat_inv_translation
-from geometryPrimitives import calculate_scale_factor_for_rotation, calculate_scale_factor_for_translation
+from .geometryPrimitives import mat_inv_rotation, mat_inv_scale, mat_inv_translation
+from .geometryPrimitives import calculate_scale_factor_for_rotation, calculate_scale_factor_for_translation
 
 class GeometryHandler:
 

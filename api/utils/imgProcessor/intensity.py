@@ -92,10 +92,11 @@ def contrast_modulation(light, entry_interval, exit_interval):
 #-------------------------
 
 if __name__ == "__main__":
-    IMAGE_PATH = "../testImgs/ze.jpg"
-    IMAGE_OUT = "../testImgs/out.jpg"
+    IMAGE_PATH = "../testImgs/ganesh.png"
+    IMAGE_OUT = "../testImgs/out.png"
 
     img = iio.imread(IMAGE_PATH)
-    inv_img = contrast_modulation(img, (0, 255), (200, 255))
+    #inv_img = contrast_modulation(img, (0, 255), (200, 255))
+    inv_img = invert_transform(img)
 
     iio.imwrite(IMAGE_OUT, inv_img)

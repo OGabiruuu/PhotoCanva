@@ -5,6 +5,7 @@
 pattern.txt
 *.test
 testImgs
+frontPrototype
 
 ### macOS ###
 # General
