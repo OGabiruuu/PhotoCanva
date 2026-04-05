@@ -12,6 +12,7 @@ class ImgCacheRegistry(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     img: np.ndarray
+    extension: str
     preview: Optional[np.ndarray]
 
 
@@ -19,7 +20,7 @@ class ImgCacheRegistry(BaseModel):
 class ImgSessionsManager:
     _imgRegistry: Dict[str, ImgCacheRegistry] = {}
 
-    def add_img(self, img: np.ndarray):
+    def add_img(self, img: np.ndarray, extension: str):
         """
         Cria um registro formalizado para a nova imagem e o adciona no cache global
 
@@ -30,7 +31,7 @@ class ImgSessionsManager:
         """
 
         img_id = str(uuid.uuid4())
-        self._imgRegistry[img_id] = ImgCacheRegistry(img=img, preview=None)
+        self._imgRegistry[img_id] = ImgCacheRegistry(img=img, preview=None, extension=extension)
 
         return img_id
 
@@ -43,9 +44,17 @@ class ImgSessionsManager:
             raise
 
 
+    def get_extension(self, id: str):
+        try:
+            return self._imgRegistry[id].extension
+        except KeyError as e:
+            print(f"Erro ao acessar imagem do registro {id}: {e}")
+            raise
+
+
     def get_img_preview(self, id: str):
         try:
-            return self._imgRegistry[id].img
+            return self._imgRegistry[id].preview
         except KeyError as e:
             print(f"Erro ao acessar o preview do registro {id}: {e}")
             raise
@@ -93,7 +102,7 @@ if __name__ == "__main__":
 
     img_registry = ImgSessionsManager()
 
-    id = img_registry.add_img(you_think_this_is_an_image)
+    id = img_registry.add_img(you_think_this_is_an_image, "actually_a_test")
     img_registry.set_img_preview(id, you_think_this_is_an_image[0:2, 0:1])
     img_registry.remove_img(id)
 

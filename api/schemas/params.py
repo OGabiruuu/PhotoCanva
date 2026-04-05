@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 # ------------------------------------------
 
 class RotateParams(BaseModel):
-    angle: float
+    theta: float
 
 class TranslateParams(BaseModel):
     tx: float

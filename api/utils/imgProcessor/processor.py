@@ -1,5 +1,7 @@
-from geometry import GeometryHandler
-from intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
+import io
+import imageio as iio
+from .geometry import GeometryHandler
+from .intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
 
 # Registro de todas as funções de processamento implementadas (injeção de dependências da arquitetura)
 PROCESS_REGISTRY = {
@@ -38,16 +40,35 @@ def apply_pipeline(img, transformations):
             method(img, **transform['params'])
 
     # Aplicando a transformação geométrica final
-    geoProcesser.apply_inverse_transform(img)
+    img = geoProcesser.apply_inverse_transform(img)
 
     # Aplicando as transformações de intensidade (Note que elas não guardam estadado. Logo, são funções comuns)
     for transform in transformations['intensity']:
         func = PROCESS_REGISTRY.get(transform["type"])
         if func:
+            print(f"Aquiiii com {func}")
             img = func(img, **transform["params"])
 
     # Retornando a imagem final
+    print(transformations)
     return img
+
+def convert_img_to_bytes(img, img_extension):
+    """
+    Converte o np.ndarray de uma imagem em bytes de um arquivo adequado para o envio em rede
+
+    Parâmetros:
+        img: np.ndarray da imagem
+        img_extension: string com a extensão do formato original da imagem
+
+    retorno:
+        buffer: Objeto Bytes contendo a imagem formatada
+    """
+
+    buffer = io.BytesIO()
+    iio.imwrite(buffer, img, img_extension)
+
+    return buffer.getvalue()
 
 
 
