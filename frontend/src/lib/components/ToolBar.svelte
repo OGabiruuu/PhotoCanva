@@ -3,34 +3,45 @@
     import ToggleInput from './smartInputs/ToggleInput.svelte'
     import DoubleInput from './smartInputs/DoubleInput.svelte';
     import SliderInput from './smartInputs/SliderInput.svelte';
-
-    // Estados da translação
-    let tx = $state(0);
-    let ty = $state(0);
-
-    // Estados da escala
-    let sx= $state(1);
-    let sy = $state(1);
-
-    // Estado da rotação
-    let theta = $state(0);
-
-    // Estados das transformações de intensidade
-    let apply_invert = $state(false);
-    let apply_log = $state(false);
+    import {
+      intensityConstrastMsg,
+      intensityGammaMsg,
+      intensityInvertMsg,
+      intensityLogMsg,
+      translateMsg,
+      scaleMsg,
+      rotateMsg
+    } from '$lib/globalStates/processImgsMessages.svelte'
 
 
 </script>
 
 <div>
     {#if toolSetManager.activeTool == 'geometric'}
-        <DoubleInput name={'Translação'} bind:externalState0={tx} externalState1={ty}/>
-        <DoubleInput name={'Escala'} bind:externalState0={sx} externalState1={sy}/>
-        <SliderInput name={'rotação'} bind:externalState={theta}/>
+        <DoubleInput
+            name={'Translação'}
+            bind:externalState0={ translateMsg.params.tx }
+            externalState1={ translateMsg.params.ty }
+        />
+        <DoubleInput
+            name={'Escala'}
+            bind:externalState0={ scaleMsg.params.sx }
+            externalState1={ scaleMsg.params.sy }
+        />
+        <SliderInput
+            name={'rotação'}
+            bind:externalState={ rotateMsg.params.theta }
+        />
 
     {:else if toolSetManager.activeTool == 'intensity'}
-        <ToggleInput name={'Invert'} bind:externalState={apply_invert} />
-        <ToggleInput name={'Log'} bind:externalState={apply_log} />
+        <ToggleInput
+            name={'Invert'}
+            bind:applied={ intensityInvertMsg.params.active }
+        />
+        <ToggleInput
+            name={'Log'}
+            bind:applied={ intensityLogMsg.params.active }
+            />
         <!-- <SliderInput /> -->
     {/if}
 

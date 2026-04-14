@@ -1,14 +1,13 @@
 <script>
-    let {name, externalState = $bindable()} = $props();
+    let {name, applied = $bindable()} = $props();
 
     // Estados internos para o toggle dos botões
-    let btnDisabled= $state(false);
+    let btnDisabled = $derived(applied);
     let twinBtnDisabled = $derived(!btnDisabled);
 
     // Função que executa a inversão tando nos botões quanto no estado externo
     const toggle = () => {
-      btnDisabled = !btnDisabled;
-      externalState = !externalState;
+      applied = !applied
     }
 </script>
 

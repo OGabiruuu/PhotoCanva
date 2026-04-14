@@ -2,17 +2,17 @@
 // Mensagens de transformações geométricas
 //--------------
 
-const rotateMsg = $state({
+export const rotateMsg = $state({
   type: "rotate",
   params: { theta: 0 }
 });
 
-const translateMsg = $state({
+export const translateMsg = $state({
   type: "translate",
   params: { tx: 0, ty: 0 }
 });
 
-const scaleMsg = $state({
+export const scaleMsg = $state({
   type: "scale",
   params: { sx: 1, sy: 1 }
 });
@@ -22,22 +22,22 @@ const scaleMsg = $state({
 // Mensagens de transformações de intensidade
 //--------------
 
-const intensityInvertMsg = $state({
+export const intensityInvertMsg = $state({
   type: "intensity_invert",
-  params: {}
+  params: { active: false }
 });
 
-const intensityLogMsg = $state({
+export const intensityLogMsg = $state({
   type: "intensity_log",
-  params: {}
+  params: { active: false }
 });
 
-const intensityGammaMsg = $state({
+export const intensityGammaMsg = $state({
   type: "intensity_gamma",
   params: { gamma: 0.0 }
 });
 
-const intensityConstrastMsg = $state({
+export const intensityConstrastMsg = $state({
   type: "intensity_contrast",
   params: { entry_inverval: [], exit_interval: [] }
 });
