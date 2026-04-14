@@ -1,5 +1,5 @@
 <script>
-    import {toolSetManager} from '$lib/globalStates.svelte'
+    import {toolSetManager} from '$lib/globalStates/uiStates.svelte'
 </script>
 
 

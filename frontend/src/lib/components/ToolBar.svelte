@@ -1,5 +1,5 @@
 <script>
-    import {toolSetManager} from '$lib/globalStates.svelte.js';
+    import {toolSetManager} from '$lib/globalStates/uiStates.svelte.js';
     import ToggleInput from './smartInputs/ToggleInput.svelte'
     import DoubleInput from './smartInputs/DoubleInput.svelte';
     import SliderInput from './smartInputs/SliderInput.svelte';
