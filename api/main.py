@@ -1,10 +1,14 @@
 from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware;
 from pydantic import ValidationError
 from schemas.ImgProcessRequest import ImgProcessRequest
 from utils.imgProcessor.geometry import GeometryHandler
 from utils.imgCache import ImgSessionsManager
+from dotenv import load_dotenv
 from utils.imgProcessor import generate_img_preview, apply_pipeline, convert_img_to_bytes
 import imageio as iio
+import uvicorn
+import os
 
 #----------------------------
 #  Instanciando a aplicação
@@ -12,6 +16,19 @@ import imageio as iio
 app = FastAPI()
 img_registry = ImgSessionsManager()
 
+# Lista de origens reconhecidas
+origins = [
+    "http://localhost:5173"
+]
+
+# Configurando o CORS da API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 #----------------------------
 #  Definindo as rotas HTTP
@@ -87,3 +104,20 @@ async def edit_image(ws: WebSocket, img_session_id: str):
     except WebSocketDisconnect:
         # Removendo a imagem e o preview do registro
         img_registry.remove_img(img_session_id)
+
+
+#----------------------------
+#  Configurando o servidor para rodar com as variáveis de ambiente
+# ---------------------------
+
+if __name__ == "__main__":
+    # Carregando variáveis de ambiente
+    load_dotenv()
+    host = os.getenv("HOST")
+    port = os.getenv("PORT")
+
+    # Rodando o servidor
+    if port and host:
+        uvicorn.run(app, host=host, port=int(port))
+    else:
+        print("Erro ao carregar variáveis de ambiente")
