@@ -62,7 +62,7 @@ async def receive_image(file: UploadFile):
     img_registry.set_img_preview(img_id, img_preview)
 
     # Retornando o shape da imagem como teste para o sucesso da operação
-    return {"status": "success", "imgId":img_id, "shape": img.shape}
+    return {"status": "success", "imgId":img_id, "img_preview":img_preview, "previewShape": img_preview.shape}
 
 
 @app.websocket("/image/{img_session_id}/edit")
