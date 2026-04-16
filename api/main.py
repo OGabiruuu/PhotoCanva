@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect, Response
 from fastapi.middleware.cors import CORSMiddleware;
 from pydantic import ValidationError
 from schemas.ImgProcessRequest import ImgProcessRequest
@@ -27,7 +27,9 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=False,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+    # Expondo headers customizados
+    expose_headers=["X-Image-Id", "X-Preview_Height", "X-Preview-Width", "X-Preview-Channels"]
 )
 
 #----------------------------
@@ -41,7 +43,7 @@ def test_root():
 @app.post("/image")
 async def receive_image(file: UploadFile):
     """
-    Obtem uma imagem a ser processada e a salva em um registro em memória.
+    Obtem uma imagem a ser processada, a salva seu registro em memória e retorna o preview gerado.
     """
 
     # Verificando se o arquivo recebido é uma imagem
@@ -49,20 +51,37 @@ async def receive_image(file: UploadFile):
     if not file_type or not file_type.startswith("image/"):
         raise HTTPException(415, "Tipo de mídia não suportado")
 
-    # Lendo o conteúdo da imagem para um np.array
-    data = await file.read()
-    img = iio.imread(data)
-    extension = file.filename.split(".")[1]
+    try:
+        # Lendo o conteúdo da imagem para um np.array
+        data = await file.read()
+        img = iio.imread(data)
+        extension = file.filename.split(".")[1]
 
-    # Salvando a imagem no registro da sessão
-    img_id = img_registry.add_img(img, extension)
+        # Salvando a imagem no registro da sessão
+        img_id = img_registry.add_img(img, extension)
 
-    # Gerando o preview
-    img_preview = generate_img_preview(img)
-    img_registry.set_img_preview(img_id, img_preview)
+        # Gerando o preview
+        img_preview = generate_img_preview(img)
+        img_registry.set_img_preview(img_id, img_preview)
 
-    # Retornando o shape da imagem como teste para o sucesso da operação
-    return {"status": "success", "imgId":img_id, "img_preview":img_preview, "previewShape": img_preview.shape}
+        # Retornando os dados binários no corpo da requisição e as outras informações em cabeçalhos
+        preview_bytes = convert_img_to_bytes(img_preview, extension)
+        return Response(
+            content=preview_bytes,
+            status_code=201,
+            media_type=f"image/{extension}",
+            headers={
+                "X-Image-Id": img_id,
+                "X-Preview-Height": str(img_preview.shape[0]),
+                "X-Preview-Width": str(img_preview.shape[1]),
+                "X-Preview-Channels": str(img_preview.shape[2])
+            }
+        )
+
+    except Exception as e:
+        print(e)
+        raise HTTPException(500, f"Erro: {e}")
+
 
 
 @app.websocket("/image/{img_session_id}/edit")
