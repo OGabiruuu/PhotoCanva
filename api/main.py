@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect, Response
-from fastapi.middleware.cors import CORSMiddleware;
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import ValidationError
 from schemas.ImgProcessRequest import ImgProcessRequest
 from utils.imgProcessor.geometry import GeometryHandler

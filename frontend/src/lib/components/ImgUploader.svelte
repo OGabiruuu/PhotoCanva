@@ -36,6 +36,6 @@
 </script>
 
 <div>
-    <input type="file" onchange={(event) => file = event.target.files[0]}>
+    <input type="file" onchange={(event) => {file = event.target.files[0]}}>
     <button onclick={uploadImg}>Iniciar edição</button>
 </div>

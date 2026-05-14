@@ -20,6 +20,6 @@ export const imgPreviewManagerActions = $state({
   set(file, url) {
     imgPreviewManager.url = url;
     imgPreviewManager.name = file.name.split('.')[0];
-    imgPreviewManager.extension = file.split('.')[1];
+    imgPreviewManager.extension = file.name.split('.')[1];
   }
 });
