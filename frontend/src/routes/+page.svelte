@@ -8,11 +8,11 @@
     let imagLoaded = $derived(imgPreviewManager.url === "" ? false : true);
 
     // Limpar a sessão do previewManager caso a conexão Websocket caia
-    $effect(() => {
-      if((!wsManager.instance) && (imgPreviewManager.url !== "")) {
-        imgPreviewManagerActions.clean();
-      }
-    });
+    //$effect(() => {
+    //  if((!wsManager.instance) && (imgPreviewManager.url !== "")) {
+    //    imgPreviewManagerActions.clean();
+    //  }
+    //});
 
 </script>
 
@@ -24,5 +24,6 @@
     {:else}
         <NavBar />
         <ToolBar />
+        <img src="{imgPreviewManager.url}" alt="foto carregada">
     {/if}
 </div>

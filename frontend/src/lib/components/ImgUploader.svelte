@@ -3,17 +3,13 @@
 
     let file = $state(null);
 
-    $inspect(file)
-
     // Handler do upload no frontend
     const uploadImg = async () => {
-      // Obtendo o arquivo enviado ao browser
       if (!file)
         return;
 
-      // Apagando a url do preview anterior (se houver)
-      if(imgPreviewManager.url !== "")
-        URL.revokeObjectURL(imgPreviewManager.url);
+      // Guardando a URL antiga
+      let oldUrl = imgPreviewManager.url;
 
       // Realizando o upload do que estava no outro estado
       const formData = new FormData();
@@ -24,18 +20,22 @@
         body: formData
       });
       if (!response.ok) {
-        throw new Error('AAAAAAAAAAAAH');
+        throw new Error(`Um erro ocorreu ao enviar a imagem: ${response.status}`);
       }
 
-      const imgBlob = await response.blob();
-
       // Atualizando o preview e a URL
+      const imgBlob = await response.blob();
       const newUrl = URL.createObjectURL(imgBlob);
       imgPreviewManagerActions.set(file, newUrl);
+
+      // Desalocando a antiga URL
+      if(oldUrl) {
+        URL.revokeObjectURL(oldUrl);
+      }
     }
 </script>
 
 <div>
-    <input type="file" onchange={(event) => {file = event.target.files[0]}}>
-    <button onclick={uploadImg}>Iniciar edição</button>
+    <input type="file" onchange={(event) => {file = event.target?.files[0]}}>
+    <button type="button" onclick={uploadImg}>Iniciar edição</button>
 </div>
