@@ -10,7 +10,7 @@
     // Função que gerencia o fluxo de estados ao carregar uma imagem
     const handleSessionInit = (data) => {
       imgPreviewManagerActions.set(data.file, data.url);
-      //wsManagerActions.connect(data.sessionId);
+      wsManagerActions.connect(data.sessionId);
     }
 
 

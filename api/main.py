@@ -99,8 +99,6 @@ async def edit_image(ws: WebSocket, img_session_id: str):
     img_preview = img_registry.get_img_preview(img_session_id)
     extension = img_registry.get_extension(img_session_id)
 
-    # Obtendo a imagem original para o fim da edição
-    #img = img_registry.get_img(img_session_id)
 
     # Loop principal da comunicação
     try:

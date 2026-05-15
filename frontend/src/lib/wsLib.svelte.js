@@ -1,5 +1,5 @@
 // URL da API que deve ser jogada para um .env no futuro
-const ApiUrl = 'ws://localhost:3000/'
+const ApiUrl = 'ws://localhost:3000/image/'
 
 
 // Estado global que armazena as informações da comunicação websocket com o cliente
