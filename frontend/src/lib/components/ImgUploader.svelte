@@ -1,15 +1,13 @@
 <script>
     import { imgPreviewManager, imgPreviewManagerActions } from "$lib/globalStates/uiStates.svelte.js";
 
-    let file = $state(null);
+    let { uploadDataHandler } = $props(); // Recebe uma função handler do upload pelo componente pai
+    let file = $state(null);          // Estado para o input do arquivo pelo usuário
 
     // Handler do upload no frontend
     const uploadImg = async () => {
       if (!file)
         return;
-
-      // Guardando a URL antiga
-      let oldUrl = imgPreviewManager.url;
 
       // Realizando o upload do que estava no outro estado
       const formData = new FormData();
@@ -23,15 +21,15 @@
         throw new Error(`Um erro ocorreu ao enviar a imagem: ${response.status}`);
       }
 
-      // Atualizando o preview e a URL
+      // Gerando a nova URL
       const imgBlob = await response.blob();
       const newUrl = URL.createObjectURL(imgBlob);
-      imgPreviewManagerActions.set(file, newUrl);
 
-      // Desalocando a antiga URL
-      if(oldUrl) {
-        URL.revokeObjectURL(oldUrl);
-      }
+      // Obtendo os dados da seção pelo cabeçalho da imagem:
+      const session = response.headers.get('X-Image-id');
+
+      // Jogando os novos dados do upload para serem tratados pelo componente pai
+      uploadDataHandler({url: newUrl, file: file, sessionId: session})
     }
 </script>
 

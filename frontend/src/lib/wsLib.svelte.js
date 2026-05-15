@@ -16,8 +16,11 @@ export const wsManagerActions = {
 
   // Inicia a conexão, criando e configurando o objeto ws, e atualizando o estado wsManager
   connect(sessionId) {
-    wsManager.state = 'connecting'
     const ws = new WebSocket(`${ApiUrl + sessionId}/edit`);
+
+    // .instance Deve ser o primeiro atributo atualizado para não quebrar $effects sobre o wsManager
+    wsManager.instance = ws;
+    wsManager.state = 'connecting'
 
     ws.onopen = () => {
       wsManager.sessionId = sessionId;
@@ -27,7 +30,7 @@ export const wsManagerActions = {
 
     ws.onerror = (error) => {
       console.error(`ERRO AO CONECTAR O WS: ${error}`);
-      //wsManager.state = 'closed';
+      //wsManager.state = 'closed'; --> Ainda não sei o que colocar aqui...
     }
 
     // Limpa todo o estado ao fechar
@@ -40,9 +43,6 @@ export const wsManagerActions = {
     ws.onmessage = (msg) => {
       console.log(`Mensagem recebida: ${msg.data}`)
     }
-
-    // Salvando a isntancia
-    wsManager.instance = ws;
   },
 
   // Formaliza a mensagem de processamento pelo tipo da operação e envia para a api com o wsManager

@@ -7,6 +7,13 @@
 
     let imagLoaded = $derived(imgPreviewManager.url === "" ? false : true);
 
+    // Função que gerencia o fluxo de estados ao carregar uma imagem
+    const handleSessionInit = (data) => {
+      imgPreviewManagerActions.set(data.file, data.url);
+      //wsManagerActions.connect(data.sessionId);
+    }
+
+
     // Limpar a sessão do previewManager caso a conexão Websocket caia
     //$effect(() => {
     //  if((!wsManager.instance) && (imgPreviewManager.url !== "")) {
@@ -20,7 +27,7 @@
 
     {#if !imagLoaded}
         <h1>PhotoCanva</h1>
-        <ImgUploader />
+        <ImgUploader uploadDataHandler={handleSessionInit}/>
     {:else}
         <NavBar />
         <ToolBar />
