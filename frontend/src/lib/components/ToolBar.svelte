@@ -14,8 +14,14 @@
       rotateMsg
     } from '$lib/globalStates/processImgsMessages.svelte'
 
-    $inspect(translateMsg.params.tx)
-    $inspect(translateMsg.params.ty)
+    function sendInstantMessage(typeMsg, processData) {
+      console.log('aquiiii')
+      wsManagerActions.sendProcessMsg(typeMsg, processData);
+    }
+
+    function sendDebouncedMessage() {
+
+    }
 
 </script>
 
@@ -39,11 +45,13 @@
     {:else if toolSetManager.activeTool == 'intensity'}
         <ToggleInput
             name={'Invert'}
-            bind:applied={ intensityInvertMsg.params.active }
+            //bind:applied={ intensityInvertMsg.params.active }
+            onToggle={ () => sendInstantMessage('intensity', intensityInvertMsg) }
         />
         <ToggleInput
             name={'Log'}
-            bind:applied={ intensityLogMsg.params.active }
+            //bind:applied={ intensityLogMsg.params.active }
+            onToggle={ () => sendInstantMessage('intensity', intensityLogMsg)}
             />
         <!-- <SliderInput /> -->
     {/if}
