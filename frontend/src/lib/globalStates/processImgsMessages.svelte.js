@@ -29,7 +29,7 @@ export const intensityInvertMsg = $state({
 
 export const intensityLogMsg = $state({
   type: "intensity_log",
-  params: { active: false }
+  params: { }
 });
 
 export const intensityGammaMsg = $state({

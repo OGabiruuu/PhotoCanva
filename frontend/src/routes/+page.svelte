@@ -9,10 +9,16 @@
 
     // Função que gerencia o fluxo de estados ao carregar uma imagem
     const handleSessionInit = (data) => {
-      imgPreviewManagerActions.set(data.file, data.url);
-      wsManagerActions.connect(data.sessionId);
+      imgPreviewManagerActions.setMetadata(data.file);
+      imgPreviewManagerActions.setUrl(data.url);
+      wsManagerActions.connect(data.sessionId, editedImgHandler);
     }
 
+    // Função de callback que gerencia a atualização de uma imagem
+    const editedImgHandler = (imgBlob) => {
+      const newUrl = URL.createObjectURL(imgBlob);
+      imgPreviewManagerActions.setUrl(newUrl);
+    }
 
     // Limpar a sessão do previewManager caso a conexão Websocket caia
     //$effect(() => {

@@ -15,7 +15,7 @@ export const wsManager = $state({
 export const wsManagerActions = {
 
   // Inicia a conexão, criando e configurando o objeto ws, e atualizando o estado wsManager
-  connect(sessionId) {
+  connect(sessionId, onMessageCallback) {
     const ws = new WebSocket(`${ApiUrl + sessionId}/edit`);
 
     // .instance Deve ser o primeiro atributo atualizado para não quebrar $effects sobre o wsManager
@@ -42,6 +42,7 @@ export const wsManagerActions = {
 
     ws.onmessage = (msg) => {
       console.log(`Mensagem recebida: ${msg.data}`)
+      onMessageCallback(msg.data);
     }
   },
 
