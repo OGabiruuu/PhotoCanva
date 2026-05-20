@@ -47,8 +47,10 @@ export const wsManagerActions = {
 
   // Formaliza a mensagem de processamento pelo tipo da operação e envia para a api com o wsManager
   sendProcessMsg(msgType, processData) {
-    if (wsManager.instance?.readyState !== WebSocket.OPEN)
+    if (wsManager.instance?.readyState !== WebSocket.OPEN) {
       console.error('Websocket não está aberto');
+      return;
+    }
 
     // Atualizando manager para o estado de processamento
     wsManager.isProcessingMsg = true;
@@ -61,7 +63,7 @@ export const wsManagerActions = {
       msg.intensity.push(processData);
 
     // Enviando
-    wsManager.instance.send(msg);
+    wsManager.instance.send(JSON.stringify(msg));
     wsManager.isProcessingMsg = false;
   }
 }

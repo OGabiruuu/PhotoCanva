@@ -3,6 +3,7 @@
     import ToggleInput from './smartInputs/ToggleInput.svelte'
     import DoubleInput from './smartInputs/DoubleInput.svelte';
     import SliderInput from './smartInputs/SliderInput.svelte';
+    import  { wsManagerActions } from '../wsLib.svelte'
     import {
       intensityConstrastMsg,
       intensityGammaMsg,
@@ -13,6 +14,8 @@
       rotateMsg
     } from '$lib/globalStates/processImgsMessages.svelte'
 
+    $inspect(translateMsg.params.tx)
+    $inspect(translateMsg.params.ty)
 
 </script>
 
@@ -21,12 +24,12 @@
         <DoubleInput
             name={'Translação'}
             bind:externalState0={ translateMsg.params.tx }
-            externalState1={ translateMsg.params.ty }
+            bind:externalState1={ translateMsg.params.ty }
         />
         <DoubleInput
             name={'Escala'}
             bind:externalState0={ scaleMsg.params.sx }
-            externalState1={ scaleMsg.params.sy }
+            bind:externalState1={ scaleMsg.params.sy }
         />
         <SliderInput
             name={'rotação'}

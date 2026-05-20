@@ -1,8 +1,6 @@
 <script>
-    import { imgPreviewManager, imgPreviewManagerActions } from "$lib/globalStates/uiStates.svelte.js";
-
     let { uploadDataHandler } = $props(); // Recebe uma função handler do upload pelo componente pai
-    let file = $state(null);          // Estado para o input do arquivo pelo usuário
+    let file = $state(null);              // Estado para o input do arquivo pelo usuário
 
     // Handler do upload no frontend
     const uploadImg = async () => {
