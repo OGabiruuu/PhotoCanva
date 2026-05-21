@@ -14,13 +14,16 @@
       rotateMsg
     } from '$lib/globalStates/processImgsMessages.svelte'
 
+    // Garante que nenhum input nulo do usuário será enviado
     function sendInstantMessage(typeMsg, processData) {
-      console.log('aquiiii')
+      let isInputNull = Object.values(processData).some((attribute) => attribute === null )
+      if(isInputNull) {
+        console.log('input nulo detectado...')
+        return;
+      }
+
+      console.log('Foiiiii')
       wsManagerActions.sendProcessMsg(typeMsg, processData);
-    }
-
-    function sendDebouncedMessage() {
-
     }
 
 </script>
@@ -31,29 +34,42 @@
             name={'Translação'}
             bind:externalState0={ translateMsg.params.tx }
             bind:externalState1={ translateMsg.params.ty }
+            onApply= { () => sendInstantMessage('geometric', translateMsg) }
         />
         <DoubleInput
             name={'Escala'}
             bind:externalState0={ scaleMsg.params.sx }
             bind:externalState1={ scaleMsg.params.sy }
+            onApply= { () => sendInstantMessage('geometric', scaleMsg) }
         />
         <SliderInput
             name={'rotação'}
+            min={-180}
+            max={180}
+            step={0.1}
+            debounceTime={50}
             bind:externalState={ rotateMsg.params.theta }
+            onChange = {() => wsManagerActions.sendProcessMsg('geometric', rotateMsg)}
         />
 
     {:else if toolSetManager.activeTool == 'intensity'}
         <ToggleInput
             name={'Invert'}
-            //bind:applied={ intensityInvertMsg.params.active }
             onToggle={ () => sendInstantMessage('intensity', intensityInvertMsg) }
         />
         <ToggleInput
             name={'Log'}
-            //bind:applied={ intensityLogMsg.params.active }
             onToggle={ () => sendInstantMessage('intensity', intensityLogMsg)}
-            />
-        <!-- <SliderInput /> -->
+        />
+        <SliderInput
+            name={'Gamma'}
+            min={0.0}
+            max={1.0}
+            step={0.01}
+            debounceTime={30}
+            bind:externalState={ intensityGammaMsg.params.gamma }
+            onChange= {() => wsManagerActions.sendProcessMsg('intensity', intensityGammaMsg)}
+        />
     {/if}
 
     <button>Download</button>

@@ -1,8 +1,9 @@
 <script>
     let {
       name,
-      externalState0 = $bindable(),
-      externalState1 = $bindable()
+      externalState0 = $bindable(),   // Valor mais a esquerda
+      externalState1 = $bindable(),   // Valor mais a direita
+      onApply                         // Handler da aplicação dos valores registrado
     } = $props()
 
 </script>
@@ -11,7 +12,7 @@
     <label for="dbl-inpt">{name}</label>
     <input type="number" step="any" bind:value={externalState0}>
     <input type="number" step="any" bind:value={externalState1}>
-    <button>Apply</button>
+    <button onclick={ onApply }>Apply</button>
 </div>
 
 <style>
