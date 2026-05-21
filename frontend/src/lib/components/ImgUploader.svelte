@@ -1,6 +1,19 @@
 <script>
+    import { onMount, tick } from "svelte";
+
     let { uploadDataHandler } = $props(); // Recebe uma função handler do upload pelo componente pai
     let file = $state(null);              // Estado para o input do arquivo pelo usuário
+    let fileInput;                        // Variável atrelada ao valor do input
+
+    //Garantindo que o campo de input está limpo a cada inicialização.
+    // Ele demora para executar em reloads, mas isso parece ser um comportamento do navegador.
+    onMount(() => {
+      file = null;
+
+      requestAnimationFrame(() => {
+        fileInput.value = "";
+      })
+    });
 
     // Handler do upload no frontend
     const uploadImg = async () => {
@@ -32,6 +45,6 @@
 </script>
 
 <div>
-    <input type="file" onchange={(event) => {file = event.target?.files[0]}}>
+    <input bind:this={fileInput} type="file" onchange={(event) => {file = event.target?.files[0]}}>
     <button type="button" onclick={uploadImg}>Iniciar edição</button>
 </div>

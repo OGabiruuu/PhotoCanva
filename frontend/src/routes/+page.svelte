@@ -21,11 +21,11 @@
     }
 
     // Limpar a sessão do previewManager caso a conexão Websocket caia
-    //$effect(() => {
-    //  if((!wsManager.instance) && (imgPreviewManager.url !== "")) {
-    //    imgPreviewManagerActions.clean();
-    //  }
-    //});
+    $effect(() => {
+      if((!wsManager.instance) && (imgPreviewManager.url !== "")) {
+        imgPreviewManagerActions.clean();
+      }
+    });
 
 </script>
 
