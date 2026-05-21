@@ -32,9 +32,9 @@
     <input
         type="range"
         name="slider-inpt"
-        min="{min}"
-        max="{max}"
-        step="{step}"
+        min={min}
+        max={max}
+        step={step}
         bind:value={externalState}
         oninput={handleInputDebounced}
     >

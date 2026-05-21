@@ -6,13 +6,23 @@
       onApply                         // Handler da aplicação dos valores registrado
     } = $props()
 
+    // Envia o input para o handler externo garantindo que não há valores nulos
+    const handleApplyInput = () => {
+      if(externalState0 === null || externalState1 === null) {
+        console.log(`input nulo detectado em ${name}`)
+        return;
+      }
+
+      onApply();
+    }
+
 </script>
 
 <div>
     <label for="dbl-inpt">{name}</label>
     <input type="number" step="any" bind:value={externalState0}>
     <input type="number" step="any" bind:value={externalState1}>
-    <button onclick={ onApply }>Apply</button>
+    <button onclick={ handleApplyInput }>Apply</button>
 </div>
 
 <style>

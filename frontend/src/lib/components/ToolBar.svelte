@@ -14,17 +14,6 @@
       rotateMsg
     } from '$lib/globalStates/processImgsMessages.svelte'
 
-    // Garante que nenhum input nulo do usuário será enviado
-    function sendInstantMessage(typeMsg, processData) {
-      let isInputNull = Object.values(processData).some((attribute) => attribute === null )
-      if(isInputNull) {
-        console.log('input nulo detectado...')
-        return;
-      }
-
-      console.log('Foiiiii')
-      wsManagerActions.sendProcessMsg(typeMsg, processData);
-    }
 
 </script>
 
@@ -34,13 +23,13 @@
             name={'Translação'}
             bind:externalState0={ translateMsg.params.tx }
             bind:externalState1={ translateMsg.params.ty }
-            onApply= { () => sendInstantMessage('geometric', translateMsg) }
+            onApply = { () => wsManagerActions.sendProcessMsg('geometric', translateMsg) }
         />
         <DoubleInput
             name={'Escala'}
             bind:externalState0={ scaleMsg.params.sx }
             bind:externalState1={ scaleMsg.params.sy }
-            onApply= { () => sendInstantMessage('geometric', scaleMsg) }
+            onApply = { () => wsManagerActions.sendProcessMsg('geometric', scaleMsg) }
         />
         <SliderInput
             name={'rotação'}
@@ -55,11 +44,11 @@
     {:else if toolSetManager.activeTool == 'intensity'}
         <ToggleInput
             name={'Invert'}
-            onToggle={ () => sendInstantMessage('intensity', intensityInvertMsg) }
+            onToggle = { () => wsManagerActions.sendProcessMsg('intensity', intensityInvertMsg) }
         />
         <ToggleInput
             name={'Log'}
-            onToggle={ () => sendInstantMessage('intensity', intensityLogMsg)}
+            onToggle = { () => wsManagerActions.sendProcessMsg('intensity', intensityLogMsg) }
         />
         <SliderInput
             name={'Gamma'}
