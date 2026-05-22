@@ -1,5 +1,5 @@
 
-from utils.imgProcessor.intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
+from lib.intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
 
 # Registro de todas as funções de processamento implementadas (injeção de dependências da arquitetura)
 PROCESS_REGISTRY = {
