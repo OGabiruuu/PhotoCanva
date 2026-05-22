@@ -1,11 +1,14 @@
 from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect, Response
 from fastapi.middleware.cors import CORSMiddleware
+from cache.ImgRegistry import ImgRepository
 from pydantic import ValidationError
-from schemas.ImgProcessRequest import ImgProcessRequest
-from utils.imgProcessor.geometry import GeometryHandler
-from utils.imgCache import ImgSessionsManager
 from dotenv import load_dotenv
-from utils.imgProcessor import generate_img_preview, apply_pipeline, convert_img_to_bytes
+
+from adapter.imgNetworkConvertions import generate_img_preview, convert_img_to_bytes
+from adapter.imgTransformationProcessor import apply_pipeline
+from schemas.ImgProcessRequest import ImgProcessRequest
+from lib.geometry import GeometryHandler
+
 import imageio as iio
 import uvicorn
 import os
@@ -14,7 +17,7 @@ import os
 #  Instanciando a aplicação
 # ---------------------------
 app = FastAPI()
-img_registry = ImgSessionsManager()
+img_registry = ImgRepository()
 
 # Lista de origens reconhecidas
 origins = [
@@ -43,7 +46,7 @@ def test_root():
 @app.post("/image")
 async def receive_image(file: UploadFile):
     """
-    Obtem uma imagem a ser processada, a salva seu registro em memória e retorna o preview gerado.
+    Obtem uma imagem a ser processada, salva seu registro em memória e retorna o preview gerado.
     """
 
     # Verificando se o arquivo recebido é uma imagem
@@ -55,9 +58,9 @@ async def receive_image(file: UploadFile):
         # Lendo o conteúdo da imagem para um np.array
         data = await file.read()
         img = iio.imread(data)
-        extension = file.filename.split(".")[1]
 
         # Salvando a imagem no registro da sessão
+        extension = file.filename.split(".")[1]
         img_id = img_registry.add_img(img, extension)
 
         # Gerando o preview
@@ -77,7 +80,6 @@ async def receive_image(file: UploadFile):
                 "X-Preview-Channels": str(img_preview.shape[2])
             }
         )
-
     except Exception as e:
         print(e)
         raise HTTPException(500, f"Erro: {e}")

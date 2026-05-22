@@ -1,24 +1,12 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Dict, Optional
+from typing import Dict
 import numpy as np
 import uuid
-
-class ImgCacheRegistry(BaseModel):
-    """
-    Define o registro interno do cache das imagens em memória
-    """
-
-    # Linha necessaria para o Pydantic aceitar np.ndarray como um tipo externo
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    img: np.ndarray
-    extension: str
-    preview: Optional[np.ndarray]
+from schemas.cacheRegistries import ImgCacheRegistry
 
 
-# Definindo a classe do registro
-class ImgSessionsManager:
-    _imgRegistry: Dict[str, ImgCacheRegistry] = {}
+# Classe no padrão Repository que Guarda e gerencia os caches das imagens e seus previews
+class ImgRepository:
+    _imgRepository: Dict[str, ImgCacheRegistry] = {}
 
     def add_img(self, img: np.ndarray, extension: str):
         """
@@ -31,14 +19,14 @@ class ImgSessionsManager:
         """
 
         img_id = str(uuid.uuid4())
-        self._imgRegistry[img_id] = ImgCacheRegistry(img=img, preview=None, extension=extension)
+        self._imgRepository[img_id] = ImgCacheRegistry(img=img, preview=None, extension=extension)
 
         return img_id
 
 
     def get_img(self, id: str):
         try:
-            return self._imgRegistry[id].img
+            return self._imgRepository[id].img
         except KeyError as e:
             print(f"Erro ao acessar imagem do registro {id}: {e}")
             raise
@@ -46,7 +34,7 @@ class ImgSessionsManager:
 
     def get_extension(self, id: str):
         try:
-            return self._imgRegistry[id].extension
+            return self._imgRepository[id].extension
         except KeyError as e:
             print(f"Erro ao acessar imagem do registro {id}: {e}")
             raise
@@ -54,7 +42,7 @@ class ImgSessionsManager:
 
     def get_img_preview(self, id: str):
         try:
-            return self._imgRegistry[id].preview
+            return self._imgRepository[id].preview
         except KeyError as e:
             print(f"Erro ao acessar o preview do registro {id}: {e}")
             raise
@@ -70,7 +58,7 @@ class ImgSessionsManager:
         """
 
         try:
-            del self._imgRegistry[id]
+            del self._imgRepository[id]
         except KeyError as e:
             print(f"Erro ao deletar o registro {id}: {e}")
             raise
@@ -82,7 +70,7 @@ class ImgSessionsManager:
         """
 
         try:
-            self._imgRegistry[id].preview = img_preview
+            self._imgRepository[id].preview = img_preview
         except KeyError as e:
             print(f"Erro ao acessar o registro {id}: {e}")
             raise
@@ -100,7 +88,7 @@ if __name__ == "__main__":
         [1, 8, 1]
     ])
 
-    img_registry = ImgSessionsManager()
+    img_registry = ImgRepository()
 
     id = img_registry.add_img(you_think_this_is_an_image, "actually_a_test")
     img_registry.set_img_preview(id, you_think_this_is_an_image[0:2, 0:1])
