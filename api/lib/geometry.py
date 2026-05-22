@@ -134,6 +134,7 @@ class GeometryHandler:
                 if not ((old_i < 0) or (old_j < 0) or (old_i >= h) or (old_j >= w)):
                     new_img[i, j] = img[old_i, old_j]
 
+        self.afim_matrix = np.eye(3)
         return new_img
 
 
