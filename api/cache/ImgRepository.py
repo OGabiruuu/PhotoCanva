@@ -4,6 +4,7 @@ import uuid
 from schemas.cacheRegistries import ImgCacheRegistry
 
 # Constantes para referenciar os diferentes previews para cada etapa do pipeline
+PREVIEW_SET_ALL = -1
 PREVIEW_RAW = 0
 PREVIEW_GEOMETRIC = 1
 PREVIEW_INTENSITY = 2
@@ -94,7 +95,7 @@ class ImgRepository:
             raise
 
 
-    def set_img_preview(self, id: str,img_preview: np.ndarray, which_preview=PREVIEW_RAW):
+    def set_img_preview(self, id: str,img_preview: np.ndarray, which_preview=PREVIEW_SET_ALL):
         """
         Atualiza o preview da imagem reduzida dentro do registro já criado
 
@@ -109,6 +110,10 @@ class ImgRepository:
             elif(which_preview == PREVIEW_GEOMETRIC):
                 self._imgRepository[id].preview_geometric = img_preview
             elif(which_preview == PREVIEW_INTENSITY):
+                self._imgRepository[id].preview_intensity = img_preview
+            elif(which_preview == PREVIEW_SET_ALL):
+                self._imgRepository[id].preview_raw = img_preview
+                self._imgRepository[id].preview_geometric = img_preview
                 self._imgRepository[id].preview_intensity = img_preview
 
         except KeyError as e:
