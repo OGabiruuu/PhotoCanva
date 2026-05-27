@@ -44,10 +44,12 @@
     {:else if toolSetManager.activeTool == 'intensity'}
         <ToggleInput
             name={'Invert'}
+            bind:externalState={ intensityInvertMsg.params.applied }
             onToggle = { () => wsManagerActions.sendProcessMsg('intensity', intensityInvertMsg) }
         />
         <ToggleInput
             name={'Log'}
+            bind:externalState={ intensityLogMsg.params.applied }
             onToggle = { () => wsManagerActions.sendProcessMsg('intensity', intensityLogMsg) }
         />
         <SliderInput

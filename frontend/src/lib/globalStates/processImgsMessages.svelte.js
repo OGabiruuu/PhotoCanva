@@ -24,12 +24,12 @@ export const scaleMsg = $state({
 
 export const intensityInvertMsg = $state({
   type: "intensity_invert",
-  params: {  }
+  params: { applied: false }
 });
 
 export const intensityLogMsg = $state({
   type: "intensity_log",
-  params: { }
+  params: { applied: false }
 });
 
 export const intensityGammaMsg = $state({

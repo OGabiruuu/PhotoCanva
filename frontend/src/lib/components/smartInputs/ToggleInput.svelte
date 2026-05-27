@@ -1,17 +1,18 @@
 <script>
     let {
-      name,     // Nome do input na UI
-      onToggle  // Função handler dos botões
+      name,      // Nome do input na UI
+      onToggle,  // Função handler dos botões
+      externalState = $bindable()   // Estado booleno que externo que o botão controla
     } = $props();
 
     // Estados internos para o toggle dos botões
-    let applied = $state(false);
+    let applied = $derived(externalState === true);
     let btnDisabled = $derived(applied);
-    let twinBtnDisabled = $derived(!btnDisabled);
+    let twinBtnDisabled = $derived(!applied);
 
     // Função que executa a inversão no estado externo e chama o handler do componente
     const toggle = () => {
-      applied = !applied
+      externalState = !externalState
       onToggle();
     }
 </script>
