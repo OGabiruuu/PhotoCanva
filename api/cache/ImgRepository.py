@@ -3,6 +3,12 @@ import numpy as np
 import uuid
 from schemas.cacheRegistries import ImgCacheRegistry
 
+# Constantes para referenciar os diferentes previews para cada etapa do pipeline
+PREVIEW_RAW = 0
+PREVIEW_GEOMETRIC = 1
+PREVIEW_INTENSITY = 2
+
+
 
 # Classe no padrão Repository que Guarda e gerencia os caches das imagens e seus previews
 class ImgRepository:
@@ -19,7 +25,13 @@ class ImgRepository:
         """
 
         img_id = str(uuid.uuid4())
-        self._imgRepository[img_id] = ImgCacheRegistry(img=img, preview=None, extension=extension)
+        self._imgRepository[img_id] = ImgCacheRegistry(
+            img=img,
+            preview_raw=None,
+            preview_geometric=None,
+            preview_intensity=None,
+            extension=extension
+        )
 
         return img_id
 
@@ -39,14 +51,32 @@ class ImgRepository:
             print(f"Erro ao acessar imagem do registro {id}: {e}")
             raise
 
+    def get_img_preview(self, id: str, which_preview: int):
+        """
+        Busca no dicionário um preview específico para um dos registros de imagem existentes
 
-    def get_img_preview(self, id: str):
+        Parâmetros:
+            id: Identificador da imagem no dicionario.
+            which_preview: Constante que referência um dos previews gerados pelo pipeline de edição
+
+        Retorno: np.ndarray do preview ou None
+        """
+
+        print(f"Valor do preview recebido: {which_preview}")
+        print(f"Resultado ao comparara com a const: {which_preview == PREVIEW_RAW}")
+
         try:
-            return self._imgRepository[id].preview
+            if which_preview == PREVIEW_RAW:
+                return self._imgRepository[id].preview_raw
+            elif which_preview == PREVIEW_GEOMETRIC:
+                return self._imgRepository[id].preview_geometric
+            elif which_preview == PREVIEW_INTENSITY:
+                return self._imgRepository[id].preview_intensity
+            else:
+                return None
         except KeyError as e:
-            print(f"Erro ao acessar o preview do registro {id}: {e}")
+            print(f"Erro ao obter o registro {id} no ImgRepository: {e}")
             raise
-
 
 
     def remove_img(self, id: str):
@@ -54,23 +84,33 @@ class ImgRepository:
         Remove um registro do cache, propragando erros para a aplicação principal
 
         Parâmteros:
-            id: str
+            id: Identificador da imagem no dicionario.
         """
 
         try:
             del self._imgRepository[id]
         except KeyError as e:
-            print(f"Erro ao deletar o registro {id}: {e}")
+            print(f"Erro ao deletar o registro {id} no ImgRepository: {e}")
             raise
 
 
-    def set_img_preview(self, id: str, img_preview: np.ndarray):
+    def set_img_preview(self, id: str,img_preview: np.ndarray, which_preview=PREVIEW_RAW):
         """
         Atualiza o preview da imagem reduzida dentro do registro já criado
+
+        Parâmetros:
+            id: Identificador da imagem no dicionario.
+            which_preview: Constante que referência um dos previews gerados pelo pipeline de edição
         """
 
         try:
-            self._imgRepository[id].preview = img_preview
+            if(which_preview == PREVIEW_RAW):
+                self._imgRepository[id].preview_raw = img_preview
+            elif(which_preview == PREVIEW_GEOMETRIC):
+                self._imgRepository[id].preview_geometric = img_preview
+            elif(which_preview == PREVIEW_INTENSITY):
+                self._imgRepository[id].preview_intensity = img_preview
+
         except KeyError as e:
             print(f"Erro ao acessar o registro {id}: {e}")
             raise

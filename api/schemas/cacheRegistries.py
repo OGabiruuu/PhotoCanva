@@ -12,6 +12,6 @@ class ImgCacheRegistry(BaseModel):
 
     img: np.ndarray
     extension: str
-    preview: Optional[np.ndarray]
-    #preview_1_geometric: Optional[np.ndarray]
-    #preview_2_intensity: Optional[np.ndarray]
+    preview_raw: Optional[np.ndarray]
+    preview_geometric: Optional[np.ndarray]
+    preview_intensity: Optional[np.ndarray]
