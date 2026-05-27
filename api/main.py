@@ -1,13 +1,13 @@
 from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect, Response
 from fastapi.middleware.cors import CORSMiddleware
-from cache.ImgRegistry import ImgRepository
 from pydantic import ValidationError
 from dotenv import load_dotenv
 
 from adapter.imgNetworkConvertions import generate_img_preview, convert_img_to_bytes
 from adapter.imgTransformationProcessor import apply_pipeline
 from schemas.ImgProcessRequest import ImgProcessRequest
-from lib.geometry import GeometryHandler
+from cache.ImgTransformRepository import ImgTransformRepository
+from cache.ImgRepository import ImgRepository
 
 import imageio as iio
 import uvicorn
@@ -18,6 +18,7 @@ import os
 # ---------------------------
 app = FastAPI()
 img_registry = ImgRepository()
+img_transform_registry = ImgTransformRepository()
 
 # Lista de origens reconhecidas
 origins = [
@@ -62,6 +63,7 @@ async def receive_image(file: UploadFile):
         # Salvando a imagem no registro da sessão
         extension = file.filename.split(".")[1]
         img_id = img_registry.add_img(img, extension)
+        img_transform_registry.add_registry(img_id)
 
         # Gerando o preview
         img_preview = generate_img_preview(img)
@@ -95,12 +97,9 @@ async def edit_image(ws: WebSocket, img_session_id: str):
 
     # Preparando o loop de comunicação
     await ws.accept()
-    local_geometry_handler = GeometryHandler()
 
     # Buscando a extensão da imagem para os envios contínuos
-    img_preview = img_registry.get_img_preview(img_session_id)
     extension = img_registry.get_extension(img_session_id)
-
 
     # Loop principal da comunicação
     try:
@@ -109,12 +108,18 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             transform_data = await ws.receive_json()
             ImgProcessRequest(**transform_data)
 
-            # Aplicando as tranformações e atualizando o cache
-            img_preview = apply_pipeline(img_preview, transform_data, local_geometry_handler)
-            img_registry.set_img_preview(img_session_id, img_preview)
+            # Salvando o novo estado e obtendo o preview certo
+            preview_to_change = img_transform_registry.set_transform(img_session_id, transform_data)
+            img_preview = img_registry.get_img_preview(img_session_id, preview_to_change)
+
+
+            # Aplicando as tranformações e atualizando os caches
+            img_state = img_transform_registry.get_registry(img_session_id)
+            new_img_preview = apply_pipeline(img_preview, img_state, preview_to_change)
+            img_registry.set_img_preview(img_session_id, new_img_preview, preview_to_change + 1)
 
             # Enviando mensagem de resposta
-            img_binary = convert_img_to_bytes(img_preview, extension)
+            img_binary = convert_img_to_bytes(new_img_preview, extension)
             await ws.send_bytes(img_binary)
 
     except ValidationError as e:

@@ -1,5 +1,13 @@
 
 from lib.intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
+from lib.geometry import GeometryHandler
+
+# Constantes para configurar o modo de edição
+# isto é, de qual ponto reaplicaremos o pipeline
+APPLY_FROM_RAW = 0
+APPLY_FROM_GEOMTERIC = 1
+APPLY_FROM_INTENSITY = 2
+
 
 # Registro de todas as funções de processamento implementadas (injeção de dependências da arquitetura)
 PROCESS_REGISTRY = {
@@ -16,9 +24,9 @@ PROCESS_REGISTRY = {
 }
 
 
-def apply_pipeline(img, transformations, geo_processer):
+def apply_pipeline(img, state, mode):
     """
-    Orquestrador que aplica corretamente a sequencia de processamentos informada.
+    Orquestrador que aplica corretamente a sequência de processamentos informada.
 
     Parâmetros:
         img: Imagem em np.array
@@ -28,36 +36,23 @@ def apply_pipeline(img, transformations, geo_processer):
         Imagem processada
     """
 
+    geo_processer = GeometryHandler()
 
-    if len(transformations['geometric']) != 0:
-        for transform in transformations['geometric']:
-            method_str = PROCESS_REGISTRY.get(transform['type'])
+    if(mode == APPLY_FROM_RAW):
+        for transform, params in state["geometric"].items():
+            method_str = PROCESS_REGISTRY.get(transform)
             if method_str:
                 method = geo_processer.__getattribute__(method_str)
-                method(img, **transform['params'])
+                method(img, **params)
 
         # Aplicando a transformação geométrica final
         img = geo_processer.apply_inverse_transform(img)
 
-    # Aplicando as transformações de intensidade (Note que elas não guardam estadado. Logo, são funções comuns)
-    for transform in transformations['intensity']:
-        func = PROCESS_REGISTRY.get(transform["type"])
+    # Sempre aplicamos as de intensidade ao fim
+    for transform, params in state["intensity"].items():
+        func = PROCESS_REGISTRY.get(transform)
         if func:
-            img = func(img, **transform["params"])
+            img = func(img, **params)
 
     # Retornando a imagem final
     return img
-
-
-
-
-
-# Anotação sobre como os dados devem ser passados no futuro:
-#
-# {
-#   geometric: [
-#       {type: "rotate", params: {...}} {type: "translate", params: {...}}
-#   ]
-#   intensity: []
-# }
-#
