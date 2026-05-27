@@ -19,7 +19,7 @@ PROCESS_REGISTRY = {
     # Transformações de intensidade
     "intensity_invert": invert_transform,
     "intensity_log": log_transform,
-    "intensisty_gamma": gamma_transform,
+    "intensity_gamma": gamma_transform,
     "intensity_contrast": contrast_modulation,
 }
 
