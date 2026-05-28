@@ -66,6 +66,7 @@ export const wsManagerActions = {
     switch (msgType) {
       case 'finalize':
         msg.finalize = true;
+        break;
       case 'geometric':
         msg.geometric.push(processData);
         break;
