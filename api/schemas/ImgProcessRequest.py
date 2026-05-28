@@ -25,3 +25,4 @@ IntensityFunctions = Annotated[
 class ImgProcessRequest(BaseModel):
     geometric: list[GeometryFunctions] = Field(default_factory=list)
     intensity: list[IntensityFunctions] = Field(default_factory=list)
+    finalize: bool = False

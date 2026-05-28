@@ -108,6 +108,20 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             transform_data = await ws.receive_json()
             ImgProcessRequest(**transform_data)
 
+            # Verificando se é uma mensagem de finalização
+            if transform_data["finalize"]:
+                # Obtendo a imagem original e seu estado do registro
+                img = img_registry.get_img(img_session_id)
+                img_state = img_transform_registry.get_registry(img_session_id)
+
+                # Aplicando a transformação
+                final_imgs = apply_pipeline(img, img_state)
+                final_img_bin = convert_img_to_bytes(final_imgs[-1], extension)
+
+                # Enviando e fechando a conexão
+                await ws.send_bytes(final_img_bin)
+                break
+
             # Salvando o novo estado e obtendo o preview certo
             preview_to_change_idx = img_transform_registry.set_transform(img_session_id, transform_data)
             img_preview = img_registry.get_img_preview(img_session_id, preview_to_change_idx)
@@ -125,11 +139,19 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             await ws.send_bytes(img_binary)
 
     except ValidationError as e:
-        print(f"Formato de mensagem inválido: {e}")
+        print(f"ERRO: Formato de mensagem inválido: {e}")
 
     except WebSocketDisconnect:
-        # Removendo a imagem e o preview do registro
-        img_registry.remove_img(img_session_id)
+        print("ERRO: Algo ocorreu e a conexão Websocket foi fechada...")
+
+    finally:
+        # Removendo os registros de chache
+        img_registry.remove_registry(img_session_id)
+        img_transform_registry.remove_registry(img_session_id)
+
+        # Fechando a conexão de forma segura
+        await ws.close(code=1000)
+
 
 
 #----------------------------

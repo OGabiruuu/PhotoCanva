@@ -62,7 +62,7 @@ class ImgTransformRepository:
             print(f"Erro ao acessar as transformações do registro {img_id}: {e}")
             raise
 
-    def delete_registry(self, img_id):
+    def remove_registry(self, img_id):
         try:
             del self._transforms[img_id]
         except KeyError as e:

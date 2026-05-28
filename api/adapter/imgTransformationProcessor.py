@@ -24,7 +24,7 @@ PROCESS_REGISTRY = {
 }
 
 
-def apply_pipeline(img, state, mode):
+def apply_pipeline(img, state, mode=APPLY_FROM_RAW):
     """
     Orquestrador que aplica corretamente a sequência de processamentos informada.
 
