@@ -17,6 +17,16 @@ export const scaleMsg = $state({
   params: { sx: 1, sy: 1 }
 });
 
+// Volta todos os estados geométricos para o "default"
+export const resetGeometricStates = () => {
+  rotateMsg.params.theta = 0;
+
+  translateMsg.params.tx = 0;
+  translateMsg.params.ty = 0;
+
+  scaleMsg.params.sx = 0;
+  scaleMsg.params.sy = 0;
+}
 
 //---------------
 // Mensagens de transformações de intensidade
@@ -39,5 +49,16 @@ export const intensityGammaMsg = $state({
 
 export const intensityConstrastMsg = $state({
   type: "intensity_contrast",
-  params: { entry_inverval: [], exit_interval: [] }
+  params: { entry_inverval: [0, 255], exit_interval: [0, 255] }
 });
+
+// Volta todos os estados das transformações de intensidade para o "default"
+export const resetIntensityStates = () => {
+  intensityInvertMsg.params.applied = false;
+  intensityLogMsg.params.applied = false;
+
+  intensityGammaMsg.params.gamma = 0.0;
+
+  intensityConstrastMsg.params.entry_inverval = [0, 255];
+  intensityConstrastMsg.params.exit_interval = [0, 255]
+}

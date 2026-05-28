@@ -4,6 +4,7 @@
     import ImgUploader from '$lib/components/ImgUploader.svelte'
     import { wsManager, wsManagerActions } from '$lib/wsLib.svelte.js';
     import { imgPreviewManager, imgPreviewManagerActions } from '$lib/globalStates/uiStates.svelte';
+    import { resetGeometricStates, resetIntensityStates } from '$lib/globalStates/processImgsMessages.svelte';
 
     let imagLoaded = $derived(imgPreviewManager.url === "" ? false : true);
 
@@ -24,6 +25,10 @@
     $effect(() => {
       if((!wsManager.instance) && (imgPreviewManager.url !== "")) {
         imgPreviewManagerActions.clean();
+
+        // Resetando os estados dos parâmetros de edição
+        resetGeometricStates();
+        resetIntensityStates();
       }
     });
 
