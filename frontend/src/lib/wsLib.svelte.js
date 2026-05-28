@@ -15,7 +15,7 @@ export const wsManager = $state({
 export const wsManagerActions = {
 
   // Inicia a conexão, criando e configurando o objeto ws, e atualizando o estado wsManager
-  connect(sessionId, onMessageCallback) {
+  connect(sessionId, onMessageCallback, onCloseCallback) {
     const ws = new WebSocket(`${ApiUrl + sessionId}/edit`);
 
     // .instance Deve ser o primeiro atributo atualizado para não quebrar $effects sobre o wsManager
@@ -34,7 +34,12 @@ export const wsManagerActions = {
     }
 
     // Limpa todo o estado ao fechar
-    ws.onclose = () => {
+    ws.onclose = (event) => {
+      if (event.wasClean)
+        onCloseCallback();
+
+      // Limpando a sessão apenas depois do callback, pois a lógica do callback
+      // deve ocorrer antes dessa limpeza em caso de depdendências desse estado
       wsManager.sessionId = '';
       wsManager.state = 'closed';
       wsManager.instance = null;
@@ -57,11 +62,17 @@ export const wsManagerActions = {
     wsManager.isProcessingMsg = true;
 
     // Formalizando a mensagem
-    let msg = { geometric: [], intensity: [] };
-    if (msgType === 'geometric')
-      msg.geometric.push(processData);
-    else if (msgType === 'intensity')
-      msg.intensity.push(processData);
+    let msg = { geometric: [], intensity: [], finalize: false };
+    switch (msgType) {
+      case 'finalize':
+        msg.finalize = true;
+      case 'geometric':
+        msg.geometric.push(processData);
+        break;
+      case 'intensity':
+        msg.intensity.push(processData);
+        break;
+    }
 
     // Enviando
     wsManager.instance.send(JSON.stringify(msg));

@@ -63,5 +63,5 @@
         />
     {/if}
 
-    <button>Download</button>
+    <button onclick={ () => {wsManagerActions.sendProcessMsg("finalize", null)} }>Download</button>
 </div>

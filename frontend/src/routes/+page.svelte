@@ -8,18 +8,38 @@
 
     let imagLoaded = $derived(imgPreviewManager.url === "" ? false : true);
 
-    // Função que gerencia o fluxo de estados ao carregar uma imagem
-    const handleSessionInit = (data) => {
-      imgPreviewManagerActions.setMetadata(data.file);
-      imgPreviewManagerActions.setUrl(data.url);
-      wsManagerActions.connect(data.sessionId, editedImgHandler);
-    }
-
-    // Função de callback que gerencia a atualização de uma imagem
+    // Função de callback que gerencia a atualização de uma imagem após o envio
+    // de uma mensagem pelo websocket
     const editedImgHandler = (imgBlob) => {
       const newUrl = URL.createObjectURL(imgBlob);
       imgPreviewManagerActions.setUrl(newUrl);
     }
+
+    // Função de callback que Faz o download da imagem em um fim voluntário da edição
+    const handleImgDownloadAtClose = () => {
+      const url = imgPreviewManager.url;      // Cópia para impedir erros do agendamento do click
+      const a = document.createElement('a');
+
+      // Criando um link efêmero e simulando um click nele para o download
+      // Importante que não precisamos nos importar com os estados dado que o ws terá feito
+      // isso no próprio onclose, e o $effect vai fazer isso para o imgPreviewManger
+      a.href = imgPreviewManager.url;
+      a.download = imgPreviewManager.name + '.' + imgPreviewManager.extension;
+
+      // Colocando o link na página para garantir que o navegador executará o click antes
+      // de limpar os estados (o que causaria erro no download)
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // Função que gerencia o fluxo de estados ao carregar uma imagem
+    const handleSessionInit = (data) => {
+      imgPreviewManagerActions.setMetadata(data.file);
+      imgPreviewManagerActions.setUrl(data.url);
+      wsManagerActions.connect(data.sessionId, editedImgHandler, handleImgDownloadAtClose);
+    }
+
 
     // Limpar a sessão do previewManager caso a conexão Websocket caia
     $effect(() => {
