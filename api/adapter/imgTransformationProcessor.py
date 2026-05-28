@@ -36,8 +36,11 @@ def apply_pipeline(img, state, mode):
         Imagem processada
     """
 
+    # Instanciando a classe para aplicar corretamente as transformações com correção
+    geo_img = img.copy()
     geo_processer = GeometryHandler()
 
+    # Começando o pipeline com a aplicação das transformações geométricas (se necessário)
     if(mode == APPLY_FROM_RAW):
         for transform, params in state["geometric"].items():
             method_str = PROCESS_REGISTRY.get(transform)
@@ -46,13 +49,14 @@ def apply_pipeline(img, state, mode):
                 method(img, **params)
 
         # Aplicando a transformação geométrica final
-        img = geo_processer.apply_inverse_transform(img)
+        geo_img = geo_processer.apply_inverse_transform(img)
 
-    # Sempre aplicamos as de intensidade ao fim
+    # Finalizando o pipeline com as tranformações de intensidade
+    final_img = geo_img.copy()
     for transform, params in state["intensity"].items():
         func = PROCESS_REGISTRY.get(transform)
         if func:
-            img = func(img, **params)
+            final_img = func(final_img, **params)
 
-    # Retornando a imagem final
-    return img
+    # Retornando os previews gerados e a imagem final
+    return [geo_img, final_img]

@@ -109,17 +109,19 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             ImgProcessRequest(**transform_data)
 
             # Salvando o novo estado e obtendo o preview certo
-            preview_to_change = img_transform_registry.set_transform(img_session_id, transform_data)
-            img_preview = img_registry.get_img_preview(img_session_id, preview_to_change)
+            preview_to_change_idx = img_transform_registry.set_transform(img_session_id, transform_data)
+            img_preview = img_registry.get_img_preview(img_session_id, preview_to_change_idx)
 
-
-            # Aplicando as tranformações e atualizando os caches
+            # Aplicando as tranformações
             img_state = img_transform_registry.get_registry(img_session_id)
-            new_img_preview = apply_pipeline(img_preview, img_state, preview_to_change)
-            img_registry.set_img_preview(img_session_id, new_img_preview, preview_to_change + 1)
+            new_imgs = apply_pipeline(img_preview, img_state, preview_to_change_idx)
+
+            # atualizando os previews necessários
+            img_registry.set_img_previews_from(img_session_id, new_imgs, preview_to_change_idx)
 
             # Enviando mensagem de resposta
-            img_binary = convert_img_to_bytes(new_img_preview, extension)
+            final_img = new_imgs[-1]
+            img_binary = convert_img_to_bytes(final_img, extension)
             await ws.send_bytes(img_binary)
 
     except ValidationError as e:

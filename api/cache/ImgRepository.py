@@ -10,7 +10,6 @@ PREVIEW_GEOMETRIC = 1
 PREVIEW_INTENSITY = 2
 
 
-
 # Classe no padrão Repository que Guarda e gerencia os caches das imagens e seus previews
 class ImgRepository:
     _imgRepository: Dict[str, ImgCacheRegistry] = {}
@@ -63,9 +62,6 @@ class ImgRepository:
         Retorno: np.ndarray do preview ou None
         """
 
-        print(f"Valor do preview recebido: {which_preview}")
-        print(f"Resultado ao comparara com a const: {which_preview == PREVIEW_RAW}")
-
         try:
             if which_preview == PREVIEW_RAW:
                 return self._imgRepository[id].preview_raw
@@ -117,9 +113,30 @@ class ImgRepository:
                 self._imgRepository[id].preview_intensity = img_preview
 
         except KeyError as e:
-            print(f"Erro ao acessar o registro {id}: {e}")
+            print(f"Erro ao acessar o registro {id} no ImgRepository: {e}")
             raise
 
+    def set_img_previews_from(self, id, new_previews, first_prev_idx):
+        """
+        Auxiliar para setar todos os previews das diferentes etapas que o pipeline retorna, considerando
+        o estado de partida da ultima transformação
+
+        Parâmetros:
+            id: Identificador da imagem no dicionario.
+            new_previews: Lista com todos os previews que o pipeline retorna
+            first_prev_idx: Index que indica de qual preview o pipeline iniciou a alteração
+        """
+
+        # Loopando por todos os previews gerados a partir do índice daquele
+        # sobre o qual o pipeline iniciou a edição.
+        # Se de raw --> idx será 0; se de geo, será 1 e assim por diante
+        # É preciso somar 1 nesse idx para igualar as constantes da interface desse registro
+        # com a do pipeline
+        try:
+            for idx, preview in enumerate(new_previews[first_prev_idx:], start=first_prev_idx):
+                self.set_img_preview(id, preview, idx + 1)
+        except KeyError as e:
+            print(f"Erro ao acessar o registro {id} no ImgRepository: {e}")
 
 #----------------------------
 #  Testes

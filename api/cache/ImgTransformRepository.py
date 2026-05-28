@@ -55,7 +55,6 @@ class ImgTransformRepository:
 
         return preview_to_change
 
-
     def get_registry(self, img_id):
         try:
             return self._transforms[img_id]
