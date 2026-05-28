@@ -1,11 +1,14 @@
 from fastapi import FastAPI, UploadFile, HTTPException, WebSocket, WebSocketDisconnect, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import ValidationError
-from schemas.ImgProcessRequest import ImgProcessRequest
-from utils.imgProcessor.geometry import GeometryHandler
-from utils.imgCache import ImgSessionsManager
 from dotenv import load_dotenv
-from utils.imgProcessor import generate_img_preview, apply_pipeline, convert_img_to_bytes
+
+from adapter.imgNetworkConvertions import generate_img_preview, convert_img_to_bytes
+from adapter.imgTransformationProcessor import apply_pipeline
+from schemas.ImgProcessRequest import ImgProcessRequest
+from cache.ImgTransformRepository import ImgTransformRepository
+from cache.ImgRepository import ImgRepository
+
 import imageio as iio
 import uvicorn
 import os
@@ -14,7 +17,8 @@ import os
 #  Instanciando a aplicação
 # ---------------------------
 app = FastAPI()
-img_registry = ImgSessionsManager()
+img_registry = ImgRepository()
+img_transform_registry = ImgTransformRepository()
 
 # Lista de origens reconhecidas
 origins = [
@@ -43,7 +47,7 @@ def test_root():
 @app.post("/image")
 async def receive_image(file: UploadFile):
     """
-    Obtem uma imagem a ser processada, a salva seu registro em memória e retorna o preview gerado.
+    Obtem uma imagem a ser processada, salva seu registro em memória e retorna o preview gerado.
     """
 
     # Verificando se o arquivo recebido é uma imagem
@@ -55,10 +59,11 @@ async def receive_image(file: UploadFile):
         # Lendo o conteúdo da imagem para um np.array
         data = await file.read()
         img = iio.imread(data)
-        extension = file.filename.split(".")[1]
 
         # Salvando a imagem no registro da sessão
+        extension = file.filename.split(".")[1]
         img_id = img_registry.add_img(img, extension)
+        img_transform_registry.add_registry(img_id)
 
         # Gerando o preview
         img_preview = generate_img_preview(img)
@@ -77,7 +82,6 @@ async def receive_image(file: UploadFile):
                 "X-Preview-Channels": str(img_preview.shape[2])
             }
         )
-
     except Exception as e:
         print(e)
         raise HTTPException(500, f"Erro: {e}")
@@ -93,12 +97,9 @@ async def edit_image(ws: WebSocket, img_session_id: str):
 
     # Preparando o loop de comunicação
     await ws.accept()
-    local_geometry_handler = GeometryHandler()
 
     # Buscando a extensão da imagem para os envios contínuos
-    img_preview = img_registry.get_img_preview(img_session_id)
     extension = img_registry.get_extension(img_session_id)
-
 
     # Loop principal da comunicação
     try:
@@ -107,12 +108,20 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             transform_data = await ws.receive_json()
             ImgProcessRequest(**transform_data)
 
-            # Aplicando as tranformações e atualizando o cache
-            img_preview = apply_pipeline(img_preview, transform_data, local_geometry_handler)
-            img_registry.set_img_preview(img_session_id, img_preview)
+            # Salvando o novo estado e obtendo o preview certo
+            preview_to_change_idx = img_transform_registry.set_transform(img_session_id, transform_data)
+            img_preview = img_registry.get_img_preview(img_session_id, preview_to_change_idx)
+
+            # Aplicando as tranformações
+            img_state = img_transform_registry.get_registry(img_session_id)
+            new_imgs = apply_pipeline(img_preview, img_state, preview_to_change_idx)
+
+            # atualizando os previews necessários
+            img_registry.set_img_previews_from(img_session_id, new_imgs, preview_to_change_idx)
 
             # Enviando mensagem de resposta
-            img_binary = convert_img_to_bytes(img_preview, extension)
+            final_img = new_imgs[-1]
+            img_binary = convert_img_to_bytes(final_img, extension)
             await ws.send_bytes(img_binary)
 
     except ValidationError as e:

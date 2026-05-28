@@ -26,17 +26,17 @@ class Scale(BaseModel):
 # ------------------------------------------
 
 class IntensityInvert(BaseModel):
-    type: Literal["intensity_invert"]
+    type: Literal["intensity_invert"] = "intensity_invert"
     params: dict = {}
 
 class IntensityLog(BaseModel):
-    type: Literal["intensity_log"]
+    type: Literal["intensity_log"] = "intensity_log"
     params: dict = {}
 
 class IntensityGamma(BaseModel):
-    type: Literal["intensity_gamma"]
+    type: Literal["intensity_gamma"] = "intensity_gamma"
     params: Optional[IntensityGammaParams]
 
 class IntensityContrast(BaseModel):
-    type: Literal["intensity_contrast"]
+    type: Literal["intensity_contrast"] = "intensity_contrast"
     params: IntensityContrastParams
