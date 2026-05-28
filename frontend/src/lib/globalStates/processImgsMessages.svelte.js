@@ -44,7 +44,7 @@ export const intensityLogMsg = $state({
 
 export const intensityGammaMsg = $state({
   type: "intensity_gamma",
-  params: { gamma: 0.0 }
+  params: { gamma: 1.0 }
 });
 
 export const intensityConstrastMsg = $state({
@@ -57,7 +57,7 @@ export const resetIntensityStates = () => {
   intensityInvertMsg.params.applied = false;
   intensityLogMsg.params.applied = false;
 
-  intensityGammaMsg.params.gamma = 0.0;
+  intensityGammaMsg.params.gamma = 1.0;
 
   intensityConstrastMsg.params.entry_inverval = [0, 255];
   intensityConstrastMsg.params.exit_interval = [0, 255]

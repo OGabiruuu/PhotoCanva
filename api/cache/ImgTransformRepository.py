@@ -24,7 +24,7 @@ IMAGE_STATE = {
             "applied": False
         },
         "intensity_gamma": {
-            "gamma": 0.0
+            "gamma": 1.0
         },
         "intensity_contrast": {
             "entry_interval": (0, 255),
