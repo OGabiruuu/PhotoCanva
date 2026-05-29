@@ -119,13 +119,13 @@ async def edit_image(ws: WebSocket, img_session_id: str):
 
                 # Aplicando a transformação nas threads executras
                 # Assim, impede-se que a API trave no caso de imagens com resolução alta
-                final_imgs = await asyncio.get_running_loop().run_in_executor(
+                final_img = await asyncio.get_running_loop().run_in_executor(
                     img_worker,
                     applly_entire_pipeline_optimized,
                     img,
                     img_state
                 )
-                final_img_bin = convert_img_to_bytes(final_imgs[-1], extension)
+                final_img_bin = convert_img_to_bytes(final_img, extension)
 
                 # Enviando e fechando a conexão
                 await ws.send_bytes(final_img_bin)

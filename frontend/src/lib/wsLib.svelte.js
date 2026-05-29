@@ -33,10 +33,12 @@ export const wsManagerActions = {
       //wsManager.state = 'closed'; --> Ainda não sei o que colocar aqui...
     }
 
-    // Limpa todo o estado ao fechar
+    // Limpa todo o estado ao fechar e, se o fechamento foi intencional, chama o callback do código principal
     ws.onclose = (event) => {
-      if (event.wasClean)
+      if (event.code === 1000)
         onCloseCallback();
+      else
+        console.warn(`Websocket fechou devido a um erro inesperado na API. Código: ${event.code}`)
 
       // Limpando a sessão apenas depois do callback, pois a lógica do callback
       // deve ocorrer antes dessa limpeza em caso de depdendências desse estado
