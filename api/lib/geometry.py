@@ -26,6 +26,10 @@ class GeometryHandler:
             fator de escala usado
         """
 
+        # Retornando caso os parâmetros passados sejam elementos neutros da translação
+        if tx == 0 and ty == 0:
+            return
+
         # Obtendo as dimensões da imagem
         h, w = img.shape[:2]
 
@@ -45,7 +49,7 @@ class GeometryHandler:
 
 
 
-    def set_mat_rotate_and_scale(self, img, theta=0):
+    def set_mat_rotate_and_scale(self, img, theta=0.0):
         """
         Gera a matriz de rotação e corrige seus artefatos com uma escala (quando necessário).
 
@@ -58,6 +62,10 @@ class GeometryHandler:
             Imagem transformada
             fator de escala aplicado
         """
+
+        # Retornando caso o theta passado seja o valor neutro da operação
+        if theta == 0.0:
+            return
 
         # Obtendo as dimensões da imagem
         h, w = img.shape[:2]
@@ -88,6 +96,10 @@ class GeometryHandler:
         Old_scale só está aqui para manter a interface comum com o orquestrador
         """
 
+        # Retornando caso os valores sejam os elementos neutros
+        if sy == 1 and sx == 1:
+           return
+
         # Obtendo as dimensões da imagem
         h, w = img.shape[:2]
 
@@ -115,6 +127,10 @@ class GeometryHandler:
         Retorno:
             Imagem transformada
         """
+
+        # Retornando caso a matriz de transformação não tenha sido alterada
+        if np.array_equal(self.afim_matrix, np.eye(3)):
+            return img
 
         # Criando a nova imagem com 0s para evitar buracos
         new_img = np.zeros_like(img)
