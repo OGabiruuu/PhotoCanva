@@ -24,5 +24,5 @@ class IntensityGammaParams(BaseModel):
     gamma: float
 
 class IntensityContrastParams(BaseModel):
-    entry_interval: tuple = Field(min_length=2, max_length=2)
-    exit_interval: tuple = Field(min_length=2, max_length=2)
+    entry_interval: tuple[int, int] = (0, 255)
+    exit_interval: tuple[int, int] = (0, 255)

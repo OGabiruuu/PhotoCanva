@@ -3,6 +3,7 @@
     import ToggleInput from './smartInputs/ToggleInput.svelte'
     import DoubleInput from './smartInputs/DoubleInput.svelte';
     import SliderInput from './smartInputs/SliderInput.svelte';
+    import ChangeIntervalsInput from './smartInputs/ChangeIntervalsInput.svelte';
     import  { wsManagerActions } from '../wsLib.svelte'
     import {
       intensityConstrastMsg,
@@ -41,6 +42,7 @@
             onChange = {() => wsManagerActions.sendProcessMsg('geometric', rotateMsg)}
         />
 
+
     {:else if toolSetManager.activeTool == 'intensity'}
         <ToggleInput
             name={'Invert'}
@@ -60,6 +62,12 @@
             debounceTime={30}
             bind:externalState={ intensityGammaMsg.params.gamma }
             onChange= {() => wsManagerActions.sendProcessMsg('intensity', intensityGammaMsg)}
+        />
+        <ChangeIntervalsInput
+            name={'Modulação de contraste'}
+            bind:entryIntervalState={ intensityConstrastMsg.params.entry_interval }
+            bind:exitIntervalState={ intensityConstrastMsg.params.exit_interval }
+            onApply={ () => wsManagerActions.sendProcessMsg('intensity', intensityConstrastMsg) }
         />
     {/if}
 

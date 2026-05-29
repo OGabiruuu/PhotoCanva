@@ -49,7 +49,7 @@ export const intensityGammaMsg = $state({
 
 export const intensityConstrastMsg = $state({
   type: "intensity_contrast",
-  params: { entry_inverval: [0, 255], exit_interval: [0, 255] }
+  params: { entry_interval: [0, 255], exit_interval: [0, 255] }
 });
 
 // Volta todos os estados das transformações de intensidade para o "default"
@@ -59,6 +59,6 @@ export const resetIntensityStates = () => {
 
   intensityGammaMsg.params.gamma = 1.0;
 
-  intensityConstrastMsg.params.entry_inverval = [0, 255];
+  intensityConstrastMsg.params.entry_interval = [0, 255];
   intensityConstrastMsg.params.exit_interval = [0, 255]
 }
