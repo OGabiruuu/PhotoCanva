@@ -4,12 +4,14 @@ from pydantic import ValidationError
 from dotenv import load_dotenv
 
 from adapter.imgNetworkConvertions import generate_img_preview, convert_img_to_bytes
-from adapter.imgTransformationProcessor import apply_pipeline
+from adapter.imgTransformationProcessor import apply_pipeline, applly_entire_pipeline_optimized
 from schemas.ImgProcessRequest import ImgProcessRequest
 from cache.ImgTransformRepository import ImgTransformRepository
 from cache.ImgRepository import ImgRepository
 
+from concurrent.futures import ThreadPoolExecutor
 import imageio as iio
+import asyncio
 import uvicorn
 import os
 
@@ -17,8 +19,9 @@ import os
 #  Instanciando a aplicação
 # ---------------------------
 app = FastAPI()
-img_registry = ImgRepository()
-img_transform_registry = ImgTransformRepository()
+img_registry = ImgRepository()                      # Cache em RAM das imagens em edição
+img_transform_registry = ImgTransformRepository()   # Cache em RAM do estado das imagens
+img_worker = ThreadPoolExecutor(max_workers=4)  # Threads para processar a imagem final
 
 # Lista de origens reconhecidas
 origins = [
@@ -114,8 +117,14 @@ async def edit_image(ws: WebSocket, img_session_id: str):
                 img = img_registry.get_img(img_session_id)
                 img_state = img_transform_registry.get_registry(img_session_id)
 
-                # Aplicando a transformação
-                final_imgs = apply_pipeline(img, img_state)
+                # Aplicando a transformação nas threads executras
+                # Assim, impede-se que a API trave no caso de imagens com resolução alta
+                final_imgs = await asyncio.get_running_loop().run_in_executor(
+                    img_worker,
+                    applly_entire_pipeline_optimized,
+                    img,
+                    img_state
+                )
                 final_img_bin = convert_img_to_bytes(final_imgs[-1], extension)
 
                 # Enviando e fechando a conexão

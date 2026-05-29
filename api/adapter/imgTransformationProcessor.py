@@ -24,13 +24,45 @@ PROCESS_REGISTRY = {
 }
 
 
+def applly_entire_pipeline_optimized(img, state):
+    """
+    Implementação do orquestrador sem as cópias de preview e dedicado a reaplicar todo o
+    pipeline para a imagem final em alta resolução.
+
+    Parâmetros:
+        img: Imagem em np.ndarray
+        state: Estado das transformações aplicadas na imagem
+    """
+
+    # Começando o pipeline com a aplicação das transformações geométricas
+    geo_processer = GeometryHandler()
+    for transform, params in state["geometric"].items():
+        method_str = PROCESS_REGISTRY.get(transform)
+        if method_str:
+            method = geo_processer.__getattribute__(method_str)
+            method(img, **params)
+
+    # Aplicando a transformação geométrica final
+    img = geo_processer.apply_inverse_transform(img)
+
+    # Finalizando o pipeline com as tranformações de intensidade
+    for transform, params in state["intensity"].items():
+        func = PROCESS_REGISTRY.get(transform)
+        if func:
+            img = func(img, **params)
+
+    # Retornando a imagem final
+    return img
+
+
 def apply_pipeline(img, state, mode=APPLY_FROM_RAW):
     """
     Orquestrador que aplica corretamente a sequência de processamentos informada.
 
     Parâmetros:
         img: Imagem em np.array
-        transformations: Lista de Dicionários com as informações da transformação
+        state: Lista de Dicionários com as informações da transformação
+        mode: Modo que indica de qual ponto o pipelina será aplicado
 
     retorno:
         Imagem processada
