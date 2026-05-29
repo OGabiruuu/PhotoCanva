@@ -4,12 +4,14 @@ from pydantic import ValidationError
 from dotenv import load_dotenv
 
 from adapter.imgNetworkConvertions import generate_img_preview, convert_img_to_bytes
-from adapter.imgTransformationProcessor import apply_pipeline
+from adapter.imgTransformationProcessor import apply_pipeline, applly_entire_pipeline_optimized
 from schemas.ImgProcessRequest import ImgProcessRequest
 from cache.ImgTransformRepository import ImgTransformRepository
 from cache.ImgRepository import ImgRepository
 
+from concurrent.futures import ThreadPoolExecutor
 import imageio as iio
+import asyncio
 import uvicorn
 import os
 
@@ -17,8 +19,9 @@ import os
 #  Instanciando a aplicação
 # ---------------------------
 app = FastAPI()
-img_registry = ImgRepository()
-img_transform_registry = ImgTransformRepository()
+img_registry = ImgRepository()                      # Cache em RAM das imagens em edição
+img_transform_registry = ImgTransformRepository()   # Cache em RAM do estado das imagens
+img_worker = ThreadPoolExecutor(max_workers=4)  # Threads para processar a imagem final
 
 # Lista de origens reconhecidas
 origins = [
@@ -108,6 +111,26 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             transform_data = await ws.receive_json()
             ImgProcessRequest(**transform_data)
 
+            # Verificando se é uma mensagem de finalização
+            if transform_data["finalize"]:
+                # Obtendo a imagem original e seu estado do registro
+                img = img_registry.get_img(img_session_id)
+                img_state = img_transform_registry.get_registry(img_session_id)
+
+                # Aplicando a transformação nas threads executras
+                # Assim, impede-se que a API trave no caso de imagens com resolução alta
+                final_img = await asyncio.get_running_loop().run_in_executor(
+                    img_worker,
+                    applly_entire_pipeline_optimized,
+                    img,
+                    img_state
+                )
+                final_img_bin = convert_img_to_bytes(final_img, extension)
+
+                # Enviando e fechando a conexão
+                await ws.send_bytes(final_img_bin)
+                break
+
             # Salvando o novo estado e obtendo o preview certo
             preview_to_change_idx = img_transform_registry.set_transform(img_session_id, transform_data)
             img_preview = img_registry.get_img_preview(img_session_id, preview_to_change_idx)
@@ -125,11 +148,19 @@ async def edit_image(ws: WebSocket, img_session_id: str):
             await ws.send_bytes(img_binary)
 
     except ValidationError as e:
-        print(f"Formato de mensagem inválido: {e}")
+        print(f"ERRO: Formato de mensagem inválido: {e}")
 
     except WebSocketDisconnect:
-        # Removendo a imagem e o preview do registro
-        img_registry.remove_img(img_session_id)
+        print("ERRO: Algo ocorreu e a conexão Websocket foi fechada...")
+
+    finally:
+        # Removendo os registros de chache
+        img_registry.remove_registry(img_session_id)
+        img_transform_registry.remove_registry(img_session_id)
+
+        # Fechando a conexão de forma segura
+        await ws.close(code=1000)
+
 
 
 #----------------------------

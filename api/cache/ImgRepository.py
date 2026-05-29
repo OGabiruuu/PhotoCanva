@@ -76,7 +76,7 @@ class ImgRepository:
             raise
 
 
-    def remove_img(self, id: str):
+    def remove_registry(self, id: str):
         """
         Remove um registro do cache, propragando erros para a aplicação principal
 
