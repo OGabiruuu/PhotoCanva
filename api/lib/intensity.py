@@ -86,8 +86,16 @@ def contrast_modulation(light, entry_interval, exit_interval):
     a, b = entry_interval[:]
     c, d = exit_interval[:]
 
+    # Impedindo divisões por 0
+    if b <= a:
+        b = a + 1
+
+    # Verificando se não há Nans na entrada
+    light_clean = np.nan_to_num(light, nan=0.0, posinf=255.0, neginf=0.0)
+
     # Aplicando a modulação com clip para garantir que nenhum valor estoure o range de 8 bits
-    new_light = np.nan_to_num(((np.float32(light) - a) * ((d-c)/(b-a))), nan=0.0, posinf=255.0, neginf=0.0)
+    scale = (d - c) / (b - a)
+    new_light = np.clip((np.float32(light_clean) - a) * scale + c, 0, 255)
     return np.uint8(new_light)
 
 
