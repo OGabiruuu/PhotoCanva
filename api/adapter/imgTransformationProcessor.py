@@ -43,7 +43,7 @@ def applly_entire_pipeline_optimized(img, state):
             method(img, **params)
 
     # Aplicando a transformação geométrica final
-    img = geo_processer.apply_inverse_transform(img)
+    img = geo_processer.apply_vectorized_inverse_transform(img)
 
     # Finalizando o pipeline com as tranformações de intensidade
     for transform, params in state["intensity"].items():
@@ -81,7 +81,7 @@ def apply_pipeline(img, state, mode=APPLY_FROM_RAW):
                 method(img, **params)
 
         # Aplicando a transformação geométrica final
-        geo_img = geo_processer.apply_inverse_transform(img)
+        geo_img = geo_processer.apply_vectorized_inverse_transform(img)
 
     # Finalizando o pipeline com as tranformações de intensidade
     final_img = geo_img.copy()

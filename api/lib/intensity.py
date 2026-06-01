@@ -81,6 +81,9 @@ def contrast_modulation(light, entry_interval, exit_interval):
         Imagem modulada no mesmo formato do array
     """
 
+    if entry_interval == (0, 255) and exit_interval == (0, 255):
+        return light
+
     # Passando os intervalos para variáveis melhores, só para melhorar a
     # legibilidade mesmo
     a, b = entry_interval[:]

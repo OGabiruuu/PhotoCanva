@@ -26,6 +26,10 @@ class GeometryHandler:
             fator de escala usado
         """
 
+        # Retornando caso os parâmetros passados sejam elementos neutros da translação
+        if tx == 0 and ty == 0:
+            return
+
         # Obtendo as dimensões da imagem
         h, w = img.shape[:2]
 
@@ -45,7 +49,7 @@ class GeometryHandler:
 
 
 
-    def set_mat_rotate_and_scale(self, img, theta=0):
+    def set_mat_rotate_and_scale(self, img, theta=0.0):
         """
         Gera a matriz de rotação e corrige seus artefatos com uma escala (quando necessário).
 
@@ -58,6 +62,10 @@ class GeometryHandler:
             Imagem transformada
             fator de escala aplicado
         """
+
+        # Retornando caso o theta passado seja o valor neutro da operação
+        if theta == 0.0:
+            return
 
         # Obtendo as dimensões da imagem
         h, w = img.shape[:2]
@@ -88,6 +96,10 @@ class GeometryHandler:
         Old_scale só está aqui para manter a interface comum com o orquestrador
         """
 
+        # Retornando caso os valores sejam os elementos neutros
+        if sy == 1 and sx == 1:
+           return
+
         # Obtendo as dimensões da imagem
         h, w = img.shape[:2]
 
@@ -116,6 +128,10 @@ class GeometryHandler:
             Imagem transformada
         """
 
+        # Retornando caso a matriz de transformação não tenha sido alterada
+        if np.array_equal(self.afim_matrix, np.eye(3)):
+            return img
+
         # Criando a nova imagem com 0s para evitar buracos
         new_img = np.zeros_like(img)
         h, w = img.shape[:2]
@@ -137,6 +153,53 @@ class GeometryHandler:
         self.afim_matrix = np.eye(3)
         return new_img
 
+
+    def apply_vectorized_inverse_transform(self, img):
+        """
+        Aplica a matriz de transformação afim em uma imagem, usando o método inverso vetorizado.
+
+        Parâmetros:
+            img: Imagem em np.array
+            matrix_inv: Matriz afim da transformação inversa
+
+        Retorno:
+            Imagem transformada
+        """
+
+        # Retornando caso a matriz de transformação não tenha sido alterada
+        if np.array_equal(self.afim_matrix, np.eye(3)):
+            return img
+
+        # Criando a nova imagem com 0s para evitar buracos
+        new_img = np.zeros_like(img)
+        h, w = img.shape[:2]
+
+        # Criando uma matriz de tres dimensões (h, w e coordenadas polares)
+        # para a execução vetorizada
+        i_coords, j_coords = np.meshgrid(np.arange(h), np.arange(w), indexing='ij')
+        ones = np.ones_like(i_coords)
+        pos_array = np.stack([i_coords, j_coords, ones], axis=0).reshape(3, -1)
+
+        # Aplicando a transformação invers a obtendo as coordenadas antigas
+        pos_old_array = self.afim_matrix @ pos_array
+        old_is = np.int64(np.round(pos_old_array[0]))
+        old_js = np.int64(pos_old_array[1])
+
+        # Gerando uma máscara das coordenadas que realmente pertencem a imagem original
+        valid_coords = ~((old_is < 0) | (old_js < 0) | (old_is >= h) | (old_js >= w))
+
+        # Obtendo os índices de destino e origem validos
+        src_is = np.asarray(old_is)[valid_coords]    # .asarray para o linter não encher a paciência...
+        src_js = np.asarray(old_js)[valid_coords]
+        dst_is = i_coords.ravel()[valid_coords]
+        dst_js = j_coords.ravel()[valid_coords]
+
+        # Resetando a matriz para não impactar transformações futuras
+        self.afim_matrix = np.eye(3)
+
+        # Preenchendo a matriz final de forma vetorial
+        new_img[dst_is, dst_js] = img[src_is, src_js]
+        return new_img
 
 
 # --------------------
