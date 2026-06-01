@@ -37,7 +37,7 @@
             min={-180}
             max={180}
             step={0.1}
-            debounceTime={50}
+            debounceTime={15}
             bind:externalState={ rotateMsg.params.theta }
             onChange = {() => wsManagerActions.sendProcessMsg('geometric', rotateMsg)}
         />
@@ -59,7 +59,7 @@
             min={0.0}
             max={1.0}
             step={0.01}
-            debounceTime={30}
+            debounceTime={15}
             bind:externalState={ intensityGammaMsg.params.gamma }
             onChange= {() => wsManagerActions.sendProcessMsg('intensity', intensityGammaMsg)}
         />
