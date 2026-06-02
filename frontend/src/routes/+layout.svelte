@@ -29,5 +29,6 @@
         background-color: var(--clr-background);
 
         font-family: sans-serif;
+        color: var(--clr-txt);
     }
 </style>
