@@ -55,13 +55,41 @@
 </script>
 
 <div id="site-container">
-
     {#if !imagLoaded}
-        <h1>PhotoCanva</h1>
-        <ImgUploader uploadDataHandler={handleSessionInit}/>
+        <div id="upload-screen">
+            <h1>PhotoCanva</h1>
+            <ImgUploader uploadDataHandler={handleSessionInit}/>
+        </div>
     {:else}
-        <NavBar />
-        <ToolBar />
-        <img src="{imgPreviewManager.url}" alt="foto carregada">
+        <div id="edit-screen">
+            <NavBar />
+            <ToolBar />
+            <img src="{imgPreviewManager.url}" alt="foto carregada">
+        </div>
     {/if}
 </div>
+
+<style>
+    #upload-screen {
+        margin: 8% 25% 0% 25%;
+        padding: 8% 5% 0% 5%;
+        border-radius: 10px;
+
+        box-shadow: 8px 6px 10px rgba(0, 0, 0, 0.4);
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        background-color: var(--clr-outer-box);
+        color: var(--clr-txt);
+
+        /*Isso garante que elementos internos possam ser empurrados com auto*/
+        min-height: 100px;
+    }
+
+    #upload-screen h1 {
+        margin-top: 0%;
+        font-size: 4em;
+    }
+</style>
