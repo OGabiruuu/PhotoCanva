@@ -66,7 +66,10 @@
     <div id="edit-screen">
         <NavBar />
         <ToolBar />
-        <img src="{imgPreviewManager.url}" alt="foto carregada">
+
+        <div id="img-preview-container">
+            <img src="{imgPreviewManager.url}" alt="foto carregada">
+        </div>
     </div>
 {/if}
 
@@ -107,6 +110,14 @@
         display: flex;
         align-items:center;
         justify-content: flex-start;
+    }
+
+    #img-preview-container {
+        margin: 0% 25% 0% 23%;
+    }
+
+    #img-preview-container img {
+        object-fit: cover;
     }
 
 </style>
