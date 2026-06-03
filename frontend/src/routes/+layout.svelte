@@ -18,7 +18,9 @@
         --clr-inner-box: #1E1E1E;
         --clr-txt: #FFFFFF;
         --clr-txt-dsbl: #a9a9a9;
+
         --clr-dtl: #F93827;
+        --clr-dtl-invt: #06C7D8;
     }
 
     :global(html, body) {

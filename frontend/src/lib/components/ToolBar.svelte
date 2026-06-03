@@ -73,3 +73,43 @@
 
     <button onclick={ () => {wsManagerActions.sendProcessMsg("finalize", null)} }>Download</button>
 </div>
+
+<style>
+    div {
+        height: 100%;
+        max-height: 100%;
+        box-sizing: border-box;
+        width: 25%;
+        z-index: 0;
+
+        padding: 6% 3% 0% 2%;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5%;
+
+        background-color: var(--clr-inner-box);
+    }
+
+    button {
+        width: 50%;
+        padding: 3%;
+        margin-top: auto;
+        margin-bottom: 5%;
+
+        background-color: var(--clr-dtl-invt);
+        box-shadow: 8px 6px 10px rgba(10, 10, 10, 0.4);
+        border: none;
+        border-radius: 10px;
+
+        cursor: pointer;
+        transition: margin 0.2s ease;
+    }
+
+    /*para quando ele é clicado*/
+    button:active {
+        box-shadow: none;
+        margin: auto 0% 3% 1%;
+    }
+</style>

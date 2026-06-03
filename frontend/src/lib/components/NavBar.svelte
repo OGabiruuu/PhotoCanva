@@ -36,6 +36,7 @@
         height: 100%;
         width: 2%;
         padding: 4% 2% 0% 2%;
+        z-index: 2;
 
         display: flex;
         flex-direction: column;
@@ -43,7 +44,7 @@
         gap: 5%;
 
         background-color: var(--clr-outer-box);
-        box-shadow: 8px 6px 10px rgba(0, 0, 0, 0.4);
+        box-shadow: 8px 6px 8px rgba(10, 10, 10, 0.4);
     }
 
     #navBar-logo {
@@ -62,11 +63,5 @@
         display: felx;
         flex-direction: column;
         justify-content: space-around;
-    }
-
-    .navBar-icon {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: cover;  /*Novamente... mantém a proporção da imagem*/
     }
 </style>
