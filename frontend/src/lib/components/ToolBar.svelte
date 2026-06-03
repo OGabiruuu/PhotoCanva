@@ -79,15 +79,17 @@
         height: 100%;
         max-height: 100%;
         box-sizing: border-box;
-        width: 25%;
+        width: 28%;
         z-index: 0;
 
-        padding: 6% 3% 0% 2%;
+        padding: 2% 2% 0% 2%;
+        /*padding: 6% 0% 0% 0%;*/
 
         display: flex;
         flex-direction: column;
+        justify-content: flex-start;
         align-items: center;
-        gap: 5%;
+        gap: 1%;
 
         background-color: var(--clr-inner-box);
     }
@@ -107,9 +109,14 @@
         transition: margin 0.2s ease;
     }
 
+    button:hover {
+        margin-bottom: 8%;
+    }
+
     /*para quando ele é clicado*/
     button:active {
+        background-color: var(--clr-dtl-invt-shadowy);
         box-shadow: none;
-        margin: auto 0% 3% 1%;
+        margin: auto 0% 5% 1%;
     }
 </style>

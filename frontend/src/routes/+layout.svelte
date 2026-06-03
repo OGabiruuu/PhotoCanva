@@ -20,7 +20,11 @@
         --clr-txt-dsbl: #a9a9a9;
 
         --clr-dtl: #F93827;
+        --clr-dtl-shadowy: #C72D1F;
+        --clr-dtl-weak: #FF5F52;
+
         --clr-dtl-invt: #06C7D8;
+        --clr-dtl-invt-shadowy: #035B63;
     }
 
     :global(html, body) {
