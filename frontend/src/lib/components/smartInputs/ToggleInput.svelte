@@ -18,14 +18,60 @@
 </script>
 
 
-<div>
+<div class="input-box">
     <p>{name}</p>
     <button disabled={btnDisabled} onclick={toggle}>Aplicar</button>
     <button disabled={twinBtnDisabled} onclick={toggle}>Desfazer</button>
 </div>
 
 <style>
-    div {
-        background-color: gray;
+    .input-box {
+        padding: 8% 8% 8% 8%;
+        width: 100%;
+
+        border-radius: 5px;
+        background-color: var(--clr-outer-box);
+        border: solid 1px var(--clr-background);
+        transition: border-color 0.5s ease;
     }
+
+    .input-box:hover {
+        border-color: var(--clr-dtl);
+    }
+
+    p {
+        display: block;
+        margin-bottom: 8%;
+
+        font-size: 1.2rem;
+    }
+
+    button {
+        padding: 3%;
+        margin: 0% 0% 0% 8%;
+
+        background-color: var(--clr-dtl);
+        border: solid 1px var(--clr-dtl);
+        border-radius: 5px;
+
+        color: var(--clr-txt);
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: margin 0.2s ease;
+    }
+
+    button:enabled:hover {
+        border: solid 1px var(--clr-dtl-weak);
+    }
+
+    button:active {
+        background-color: var(--clr-dtl-shadowy);
+    }
+
+    button:disabled {
+        background-color: var(--clr-dtl-shadowy);
+        border-color: var(--clr-dtl-shadowy);
+    }
+
 </style>
