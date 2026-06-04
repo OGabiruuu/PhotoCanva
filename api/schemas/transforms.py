@@ -45,3 +45,13 @@ class IntensityGamma(BaseModel):
 class IntensityContrast(BaseModel):
     type: Literal["intensity_contrast"] = "intensity_contrast"
     params: IntensityContrastParams
+
+
+
+# ------------------------------------------
+#  Parâmetros dos efeitos
+# ------------------------------------------
+#
+class EffectThermo(BaseModel):
+    type: Literal["effect_thermo"] = "effect_thermo"
+    params: dict = {}

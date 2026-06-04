@@ -33,6 +33,11 @@ IMAGE_STATE = {
             "entry_interval": (0, 255),
             "exit_interval": (0, 255)
         }
+    },
+    "effect": {
+        "effect_thermo": {
+            "applied": False
+        },
     }
 }
 
@@ -54,6 +59,10 @@ class ImgTransformRepository:
 
         elif len(transform_message["intensity"]) != 0:
             self._transforms[img_id]["intensity"][transform_message["intensity"][0]["type"]] = transform_message["intensity"][0]["params"]
+            preview_to_change = PREVIEW_GEOMETRIC
+
+        elif len(transform_message["effect"]) != 0:
+            self._transforms[img_id]["effect"][transform_message["effect"][0]["type"]] = transform_message["effect"][0]["params"]
             preview_to_change = PREVIEW_GEOMETRIC
 
         return preview_to_change

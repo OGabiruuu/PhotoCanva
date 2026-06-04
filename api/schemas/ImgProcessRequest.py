@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing_extensions import Annotated
 from .transforms import IntensityLuminosity, Rotate, Scale, Translate
 from .transforms import IntensityInvert, IntensityLog, IntensityGamma, IntensityContrast
+from .transforms import EffectThermo
 
 # ------------------------------------------
 # Macrolistas de cada tipo de transformação
@@ -18,6 +19,11 @@ IntensityFunctions = Annotated[
     Field(discriminator="type")
 ]
 
+EffectFunctions = Annotated[
+    Union[EffectThermo],
+    Field(discriminator="type")
+]
+
 # ------------------------------------------
 # Tipo final do dado na requisição
 # ------------------------------------------
@@ -25,4 +31,5 @@ IntensityFunctions = Annotated[
 class ImgProcessRequest(BaseModel):
     geometric: list[GeometryFunctions] = Field(default_factory=list)
     intensity: list[IntensityFunctions] = Field(default_factory=list)
+    effect: list[EffectFunctions] = Field(default_factory=list)
     finalize: bool = False
