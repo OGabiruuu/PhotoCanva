@@ -64,7 +64,7 @@ export const wsManagerActions = {
     wsManager.isProcessingMsg = true;
 
     // Formalizando a mensagem
-    let msg = { geometric: [], intensity: [], finalize: false };
+    let msg = { geometric: [], intensity: [], effect: [], finalize: false };
     switch (msgType) {
       case 'finalize':
         msg.finalize = true;
@@ -74,6 +74,9 @@ export const wsManagerActions = {
         break;
       case 'intensity':
         msg.intensity.push(processData);
+        break;
+      case 'effect':
+        msg.effect.push(processData);
         break;
     }
 

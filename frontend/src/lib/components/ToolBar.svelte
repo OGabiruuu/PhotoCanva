@@ -6,6 +6,7 @@
     import ChangeIntervalsInput from './smartInputs/ChangeIntervalsInput.svelte';
     import  { wsManagerActions } from '../wsLib.svelte'
     import {
+      effectThermoMsg,
       intensityLuminosityMsg,
       intensityConstrastMsg,
       intensityGammaMsg,
@@ -47,6 +48,7 @@
 
 
         {:else if toolSetManager.activeTool == 'intensity'}
+
             <ToggleInput
                 name={'Luminosity'}
                 bind:externalState={ intensityLuminosityMsg.params.applied }
@@ -77,7 +79,14 @@
                 bind:exitIntervalState={ intensityConstrastMsg.params.exit_interval }
                 onApply={ () => wsManagerActions.sendProcessMsg('intensity', intensityConstrastMsg) }
             />
+        {:else if toolSetManager.activeTool === 'effect'}
+            <ToggleInput
+                name={'Thermo image'}
+                bind:externalState={ effectThermoMsg.params.applied }
+                onToggle={ () => wsManagerActions.sendProcessMsg('effect', effectThermoMsg) }
+            />
         {/if}
+
     </div>
 
     <button onclick={ () => {wsManagerActions.sendProcessMsg("finalize", null)} }>Download</button>

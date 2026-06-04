@@ -28,6 +28,7 @@ export const resetGeometricStates = () => {
   scaleMsg.params.sy = 0;
 }
 
+
 //---------------
 // Mensagens de transformações de intensidade
 //--------------
@@ -67,4 +68,18 @@ export const resetIntensityStates = () => {
 
   intensityConstrastMsg.params.entry_interval = [0, 255];
   intensityConstrastMsg.params.exit_interval = [0, 255]
+}
+
+
+//---------------
+// Mensagens de efeitos personalizados
+//--------------
+
+export const effectThermoMsg = $state({
+  type: "effect_thermo",
+  params: { applied: false }
+});
+
+export const resetEffectStates = () => {
+  effectThermoMsg.params.applied = false;
 }
