@@ -1,4 +1,5 @@
 from typing import Literal, Optional
+from fastapi import params
 from pydantic import BaseModel
 from .params import RotateParams, TranslateParams, ScaleParams
 from .params import IntensityContrastParams, IntensityGammaParams
@@ -24,6 +25,10 @@ class Scale(BaseModel):
 # ------------------------------------------
 #  Parâmetros das transformações de intensidade
 # ------------------------------------------
+
+class IntensityLuminosity(BaseModel):
+    type: Literal["intensity_luminosity"] = "intensity_luminosity"
+    params: dict = {}
 
 class IntensityInvert(BaseModel):
     type: Literal["intensity_invert"] = "intensity_invert"

@@ -17,6 +17,9 @@ IMAGE_STATE = {
         },
     },
     "intensity": {
+        "intensity_luminosity": {
+            "applied": False
+        },
         "intensity_invert": {
             "applied": False
         },

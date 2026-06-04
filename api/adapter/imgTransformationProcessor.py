@@ -1,5 +1,5 @@
 
-from lib.intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
+from lib.intensity import invert_transform, log_transform, gamma_transform, contrast_modulation, luminosity_transform
 from lib.geometry import GeometryHandler
 
 # Constantes para configurar o modo de edição
@@ -17,6 +17,7 @@ PROCESS_REGISTRY = {
     "scale": "set_mat_scale_from_center",
 
     # Transformações de intensidade
+    "intensity_luminosity": luminosity_transform,
     "intensity_invert": invert_transform,
     "intensity_log": log_transform,
     "intensity_gamma": gamma_transform,

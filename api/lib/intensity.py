@@ -3,6 +3,7 @@ import numpy as np
 
 # Lista das funções públicas exporáveis com "*"
 __all__ = [
+    'luminosity_transform',
     'invert_transform',
     'log_transform',
     'gamma_transform',
@@ -12,6 +13,24 @@ __all__ = [
 #-------------------------
 # Transformações
 #-------------------------
+
+def luminosity_transform(light, applied):
+    """
+    Calcula a imagem preta e branca em um canal de 8 bits
+
+        Parâmetros:
+            light: Imagem em np.array com todos os canais de cores
+            applied: Usado para controlar quando aplicar essa transformação
+
+        Retorno:
+            Imagem com cores em preto e branco e um único canal de cor 8 bits
+    """
+
+    if applied:
+        luminosity = 0.299 * light[:,:,0] + 0.587 * light[:,:,1] + 0.114 * light[:,:,2]
+        return np.uint8(luminosity)
+    else:
+        return light
 
 # Inverte completamente quais pixeis são mais claros e mais escuros
 def invert_transform(light, applied):

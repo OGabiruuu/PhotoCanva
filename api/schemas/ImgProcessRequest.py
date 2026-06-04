@@ -1,7 +1,7 @@
 from typing import Union
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated
-from .transforms import Rotate, Scale, Translate
+from .transforms import IntensityLuminosity, Rotate, Scale, Translate
 from .transforms import IntensityInvert, IntensityLog, IntensityGamma, IntensityContrast
 
 # ------------------------------------------
@@ -14,7 +14,7 @@ GeometryFunctions = Annotated[
 ]
 
 IntensityFunctions = Annotated[
-    Union[IntensityInvert, IntensityLog, IntensityGamma, IntensityContrast],
+    Union[IntensityLuminosity, IntensityInvert, IntensityLog, IntensityGamma, IntensityContrast],
     Field(discriminator="type")
 ]
 
