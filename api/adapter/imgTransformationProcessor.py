@@ -1,5 +1,6 @@
 
-from lib.intensity import invert_transform, log_transform, gamma_transform, contrast_modulation
+from lib.intensity import invert_transform, log_transform, gamma_transform, contrast_modulation, luminosity_transform
+from lib.intensityEffects import thermo_effect
 from lib.geometry import GeometryHandler
 
 # Constantes para configurar o modo de edição
@@ -17,10 +18,14 @@ PROCESS_REGISTRY = {
     "scale": "set_mat_scale_from_center",
 
     # Transformações de intensidade
+    "intensity_luminosity": luminosity_transform,
     "intensity_invert": invert_transform,
     "intensity_log": log_transform,
     "intensity_gamma": gamma_transform,
     "intensity_contrast": contrast_modulation,
+
+    # Transformações de intensidade personalizadas
+    "effect_thermo": thermo_effect
 }
 
 
@@ -45,8 +50,13 @@ def applly_entire_pipeline_optimized(img, state):
     # Aplicando a transformação geométrica final
     img = geo_processer.apply_vectorized_inverse_transform(img)
 
-    # Finalizando o pipeline com as tranformações de intensidade
+    # Finalizando o pipeline com as tranformações de intensidade e efeitos
     for transform, params in state["intensity"].items():
+        func = PROCESS_REGISTRY.get(transform)
+        if func:
+            img = func(img, **params)
+
+    for transform, params in state["effect"].items():
         func = PROCESS_REGISTRY.get(transform)
         if func:
             img = func(img, **params)
@@ -83,9 +93,16 @@ def apply_pipeline(img, state, mode=APPLY_FROM_RAW):
         # Aplicando a transformação geométrica final
         geo_img = geo_processer.apply_vectorized_inverse_transform(img)
 
-    # Finalizando o pipeline com as tranformações de intensidade
+    # Finalizando o pipeline com as tranformações de intensidade e efeitos
     final_img = geo_img.copy()
     for transform, params in state["intensity"].items():
+        func = PROCESS_REGISTRY.get(transform)
+        if func:
+            final_img = func(final_img, **params)
+
+    for transform, params in state["effect"].items():
+        print(f"{transform} with {params}")
+
         func = PROCESS_REGISTRY.get(transform)
         if func:
             final_img = func(final_img, **params)

@@ -1,7 +1,8 @@
 <script>
-    import logoImg from '../assets/camera-retro-org.png'
-    import geometricTransformIcon from '../assets/recursos-org.png'
-    import intensityTransformIcon from '../assets/funcao-quadrada-org.png'
+    import logoImg from '../assets/camera-retro-org.png';
+    import geometricTransformIcon from '../assets/recursos-org.png';
+    import intensityTransformIcon from '../assets/funcao-quadrada-org.png';
+    import effectTransformIcon from '../assets/brilhos-org.png';
 
     import NavBarButton from '$lib/components/NavBarButton.svelte';
     import {toolSetManager} from '$lib/globalStates/uiStates.svelte'
@@ -27,6 +28,14 @@
             toolSetName="Transformações de intensidade"
             isActive={toolSetManager.activeTool === 'intensity'}
             onClickHandler={() => {toolSetManager.activeTool = 'intensity'}}
+        />
+
+        <!-- Efeitos -->
+        <NavBarButton
+            toolSetIconSrc={effectTransformIcon}
+            toolSetName="Efeitos"
+            isActive={toolSetManager.activeTool === 'effect'}
+            onClickHandler={() => {toolSetManager.activeTool = 'effect'}}
         />
     </div>
 </div>
