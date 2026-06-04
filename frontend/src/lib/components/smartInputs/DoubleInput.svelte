@@ -1,6 +1,7 @@
 <script>
     let {
       name,
+      minValue = null,                // Se configurado, gera um valor mínimo para o input
       externalState0 = $bindable(),   // Valor mais a esquerda
       externalState1 = $bindable(),   // Valor mais a direita
       onApply                         // Handler da aplicação dos valores registrado
@@ -9,8 +10,16 @@
     // Envia o input para o handler externo garantindo que não há valores nulos
     const handleApplyInput = () => {
       if(externalState0 === null || externalState1 === null) {
-        console.log(`input nulo detectado em ${name}`)
+        console.error(`input nulo detectado em ${name}`)
         return;
+      }
+
+    // Verifica se o input não está abaixo do mínimo, caso haja
+      if(minValue) {
+        if(externalState0 < minValue || externalState1 < minValue) {
+          console.error(`Input abaixo do mínimo em ${name}`);
+          return;
+        }
       }
 
       onApply();

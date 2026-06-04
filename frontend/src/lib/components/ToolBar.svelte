@@ -28,6 +28,7 @@
         />
         <DoubleInput
             name={'Escala'}
+            minValue={1}
             bind:externalState0={ scaleMsg.params.sx }
             bind:externalState1={ scaleMsg.params.sy }
             onApply = { () => wsManagerActions.sendProcessMsg('geometric', scaleMsg) }
