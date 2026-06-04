@@ -1,4 +1,6 @@
 <script>
+    import logoIcon from '$lib/assets/camera-retro-org.png'
+
     import NavBar from '$lib/components/NavBar.svelte';
     import ToolBar from '$lib/components/ToolBar.svelte';
     import ImgUploader from '$lib/components/ImgUploader.svelte'
@@ -54,14 +56,75 @@
 
 </script>
 
-<div id="site-container">
+<!-- Adiconando título e icone no header -->
+<svelte:head>
+    <title>PhotoCanva</title>
+    <link rel="icon" type="image/svg+xml" href="tabIcon.ico" />
+</svelte:head>
 
-    {#if !imagLoaded}
+<!-- HTML da página (em estilo SPA) -->
+{#if !imagLoaded}
+    <div id="upload-screen">
+        <img src={logoIcon} alt="Logo do PhotoCanva">
         <h1>PhotoCanva</h1>
         <ImgUploader uploadDataHandler={handleSessionInit}/>
-    {:else}
+    </div>
+{:else}
+    <div id="edit-screen">
         <NavBar />
         <ToolBar />
-        <img src="{imgPreviewManager.url}" alt="foto carregada">
-    {/if}
-</div>
+
+        <div id="img-preview-container">
+            <img src="{imgPreviewManager.url}" alt="foto carregada">
+        </div>
+    </div>
+{/if}
+
+<style>
+    #upload-screen {
+        margin: 8% 25% 0% 25%;
+        padding: 8% 5% 0% 5%;
+        border-radius: 10px;
+
+        box-shadow: 8px 6px 10px rgba(0, 0, 0, 0.4);
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        background-color: var(--clr-outer-box);
+        color: var(--clr-txt);
+
+        /*Isso garante que elementos internos possam ser empurrados com auto*/
+        min-height: 100px;
+    }
+
+    #upload-screen h1 {
+        margin-top: 0%;
+        font-size: 4em;
+    }
+
+    #upload-screen img {
+        width: 15%;
+        height: 15%;
+        padding-bottom: 3%;
+    }
+
+    #edit-screen {
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+        align-items:center;
+        justify-content: flex-start;
+    }
+
+    #img-preview-container {
+        margin: 0% 18% 0% 23%;
+    }
+
+    #img-preview-container img {
+        object-fit: cover;
+    }
+
+</style>
