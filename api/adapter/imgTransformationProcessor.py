@@ -105,7 +105,7 @@ def apply_pipeline(img, state, mode=APPLY_FROM_RAW):
 
         func = PROCESS_REGISTRY.get(transform)
         if func:
-            final_img = func(img, **params)
+            final_img = func(final_img, **params)
 
     # Retornando os previews gerados e a imagem final
     return [geo_img, final_img]
