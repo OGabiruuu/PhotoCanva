@@ -17,7 +17,6 @@
     }
 </script>
 
-
 <div class="input-box">
     <p>{name}</p>
     <button disabled={btnDisabled} onclick={toggle}>Aplicar</button>
@@ -41,6 +40,7 @@
 
     p {
         display: block;
+        margin-top: 0%;
         margin-bottom: 8%;
 
         font-size: 1.2rem;

@@ -50,7 +50,8 @@
 
     /* Removendo a seta do input no Firefox */
     input[type=number] {
-      -moz-appearance: textfield;
+        appearance: textfield;
+        -moz-appearance: textfield;
     }
 
     label {
