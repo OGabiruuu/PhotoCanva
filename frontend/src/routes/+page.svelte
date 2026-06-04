@@ -113,7 +113,7 @@
     }
 
     #img-preview-container {
-        margin: 0% 25% 0% 23%;
+        margin: 0% 18% 0% 23%;
     }
 
     #img-preview-container img {

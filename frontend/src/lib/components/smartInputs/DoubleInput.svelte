@@ -36,8 +36,9 @@
 
 <style>
     .input-box {
-        padding: 8% 8% 8% 8%;
-        width: 100%;
+        padding: 8% 0% 8% 4%;
+        margin-bottom: 2%;
+        width: 92%;
 
         border-radius: 5px;
         background-color: var(--clr-outer-box);
