@@ -32,6 +32,11 @@ export const resetGeometricStates = () => {
 // Mensagens de transformações de intensidade
 //--------------
 
+export const intensityLuminosityMsg = $state({
+  type: "intensity_luminosity",
+  params: { applied: false }
+});
+
 export const intensityInvertMsg = $state({
   type: "intensity_invert",
   params: { applied: false }
@@ -54,6 +59,7 @@ export const intensityConstrastMsg = $state({
 
 // Volta todos os estados das transformações de intensidade para o "default"
 export const resetIntensityStates = () => {
+  intensityLuminosityMsg.params.applied = false;
   intensityInvertMsg.params.applied = false;
   intensityLogMsg.params.applied = false;
 

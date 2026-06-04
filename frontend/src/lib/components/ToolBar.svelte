@@ -6,6 +6,7 @@
     import ChangeIntervalsInput from './smartInputs/ChangeIntervalsInput.svelte';
     import  { wsManagerActions } from '../wsLib.svelte'
     import {
+      intensityLuminosityMsg,
       intensityConstrastMsg,
       intensityGammaMsg,
       intensityInvertMsg,
@@ -46,6 +47,11 @@
 
 
         {:else if toolSetManager.activeTool == 'intensity'}
+            <ToggleInput
+                name={'Luminosity'}
+                bind:externalState={ intensityLuminosityMsg.params.applied }
+                onToggle = { () => wsManagerActions.sendProcessMsg('intensity', intensityLuminosityMsg) }
+            />
             <ToggleInput
                 name={'Invert'}
                 bind:externalState={ intensityInvertMsg.params.applied }
