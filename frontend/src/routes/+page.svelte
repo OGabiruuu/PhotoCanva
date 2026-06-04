@@ -56,6 +56,13 @@
 
 </script>
 
+<!-- Adiconando título e icone no header -->
+<svelte:head>
+    <title>PhotoCanva</title>
+    <link rel="icon" type="image/svg+xml" href="tabIcon.ico" />
+</svelte:head>
+
+<!-- HTML da página (em estilo SPA) -->
 {#if !imagLoaded}
     <div id="upload-screen">
         <img src={logoIcon} alt="Logo do PhotoCanva">
