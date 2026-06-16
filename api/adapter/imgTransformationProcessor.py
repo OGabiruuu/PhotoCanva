@@ -1,6 +1,6 @@
 
 from lib.intensity import invert_transform, log_transform, gamma_transform, contrast_modulation, luminosity_transform
-from lib.intensityEffects import thermo_effect
+from lib.intensityEffects import thermo_effect, crt_tv_effect
 from lib.geometry import GeometryHandler
 
 # Constantes para configurar o modo de edição
@@ -25,7 +25,8 @@ PROCESS_REGISTRY = {
     "intensity_contrast": contrast_modulation,
 
     # Transformações de intensidade personalizadas
-    "effect_thermo": thermo_effect
+    "effect_thermo": thermo_effect,
+    "effect_tv_crt": crt_tv_effect
 }
 
 

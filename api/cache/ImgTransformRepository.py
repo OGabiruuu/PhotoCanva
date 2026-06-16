@@ -38,6 +38,9 @@ IMAGE_STATE = {
         "effect_thermo": {
             "applied": False
         },
+        "effect_tv_crt": {
+            "applied": False
+        }
     }
 }
 

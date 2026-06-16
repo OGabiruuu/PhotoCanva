@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing_extensions import Annotated
 from .transforms import IntensityLuminosity, Rotate, Scale, Translate
 from .transforms import IntensityInvert, IntensityLog, IntensityGamma, IntensityContrast
-from .transforms import EffectThermo
+from .transforms import EffectThermo, EffectTvCrt
 
 # ------------------------------------------
 # Macrolistas de cada tipo de transformação
@@ -20,7 +20,7 @@ IntensityFunctions = Annotated[
 ]
 
 EffectFunctions = Annotated[
-    Union[EffectThermo],
+    Union[EffectThermo, EffectTvCrt],
     Field(discriminator="type")
 ]
 

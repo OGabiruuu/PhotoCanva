@@ -6,6 +6,7 @@
     import ChangeIntervalsInput from './smartInputs/ChangeIntervalsInput.svelte';
     import  { wsManagerActions } from '../wsLib.svelte'
     import {
+      effectTvCrtMsg,
       effectThermoMsg,
       intensityLuminosityMsg,
       intensityConstrastMsg,
@@ -84,6 +85,11 @@
                 name={'Thermo image'}
                 bind:externalState={ effectThermoMsg.params.applied }
                 onToggle={ () => wsManagerActions.sendProcessMsg('effect', effectThermoMsg) }
+            />
+            <ToggleInput
+                name={'TV CRT image'}
+                bind:externalState={ effectTvCrtMsg.params.applied }
+                onToggle={ () => wsManagerActions.sendProcessMsg('effect', effectTvCrtMsg) }
             />
         {/if}
 

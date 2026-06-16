@@ -80,6 +80,12 @@ export const effectThermoMsg = $state({
   params: { applied: false }
 });
 
+export const effectTvCrtMsg = $state({
+  type: "effect_tv_crt",
+  params: { applied: false }
+})
+
 export const resetEffectStates = () => {
   effectThermoMsg.params.applied = false;
+  effectTvCrtMsg.params.applied = false;
 }

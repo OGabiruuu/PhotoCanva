@@ -27,6 +27,36 @@ def thermo_effect(light, applied):
         return light
 
 
+# Auxiliar para criar as linhas escuras no crt_filter
+def _apply_scan_lines(img, shadow_level):
+    lines, cols = img.shape
+
+    for i in range(0, lines, 2):
+        img[i, :] *= (1.0 - shadow_level)
+
+    return np.clip(img, 0.0, 255.0)
+
+# Auxiliar para criar o efeito de shiado estático no crt_filter
+def _apply_crt_noise(img, quantity):
+    noise = np.random.normal(0, quantity, img.shape)
+
+    noisy_img = img + noise
+    return np.clip(noisy_img, 0.0, 255.0)
+
+def crt_tv_effect(img, applied):
+    if applied:
+        float_img = img.astype(np.float32)
+
+        # Convertendo a imagem para preto e branco
+        lum_img = luminosity_transform(float_img, True).astype(np.float32)
+        scan_img = _apply_scan_lines(lum_img, 0.8)
+        crt_img = _apply_crt_noise(scan_img, 10)
+
+        return crt_img.astype(np.uint8)
+    else:
+        return img
+
+
 if __name__ == "__main__":
     img = iio.imread('/Documents/wallpappers/img.jpg')
 

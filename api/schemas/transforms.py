@@ -55,3 +55,7 @@ class IntensityContrast(BaseModel):
 class EffectThermo(BaseModel):
     type: Literal["effect_thermo"] = "effect_thermo"
     params: dict = {}
+
+class EffectTvCrt(BaseModel):
+    type: Literal["effect_tv_crt"] = "effect_tv_crt"
+    params: dict = {}
