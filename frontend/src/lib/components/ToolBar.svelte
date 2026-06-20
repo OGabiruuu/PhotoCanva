@@ -97,8 +97,10 @@
         height: 100%;
         max-height: 100vh;
         box-sizing: border-box;
-        width: 100%;
+        width: 25%;
         z-index: 0;
+
+        flex-shrink: 0;
 
         padding: 2% 1% 0% 1%;
         /*padding: 6% 0% 0% 0%;*/

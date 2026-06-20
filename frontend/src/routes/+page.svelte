@@ -112,8 +112,8 @@
     }
 
     #edit-screen {
-        width: 100%;
         height: 100%;
+        min-width: 100%;
 
         display: flex;
         align-items:center;
@@ -121,7 +121,7 @@
     }
 
     #img-preview-container {
-        margin: 0% 18% 0% 23%;
+        margin: 0% 18% 0% 18%;
     }
 
     #img-preview-container img {

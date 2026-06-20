@@ -65,6 +65,7 @@
 
     input {
         margin: 2%;
+        width: 80%;
 
         text-align: center;
         background-color: var(--clr-outer-box);
