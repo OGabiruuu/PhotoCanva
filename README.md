@@ -18,7 +18,7 @@ Originalmente pensado como um pequeno projeto da disciplina SCC0251 - Processame
 
 Esse projeto consiste em um pequeno editor de imagens em tempo real pela web, possuindo uma aplicação frontend que comunica cada alteração por mensagens individuais a API, a qual pega o último estado salvo da imagem e aplica as novas alterações seguindo um `pipeline` interno. Ao fim, é possível obter terminar a edição baixando a imagem final na resolução original.
 
-#### Fluxo de edição
+#### Fluxo de uso
 
 1. Clique em 'carregar imagem' ao abrir o sitie, e escolhe a imagem a ser editada.
 
