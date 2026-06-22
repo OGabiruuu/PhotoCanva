@@ -81,8 +81,6 @@ def calculate_scale_factor_for_translation(og_w, og_h, ty, tx, theta, old_scale=
     # Calculando o fator de escala necessário final
     scale_factor = rotation_scale_factor + translation_scale_factor
 
-    print(f"Received oldscale: {old_scale}")
-    print(f"Calculated scale: {scale_factor}")
 
     # Verificando se as escalas anteriores já não impediram o surgimento das bordas
     if old_scale >= scale_factor:

@@ -35,7 +35,6 @@ class GeometryHandler:
 
         # Gerando a matriz de correção da escala (se necessário)
         required_scale = calculate_scale_factor_for_translation(w, h, ty, tx, self.angle, self.scale_factor)
-        print(f"Required: {required_scale}")
         if required_scale != 1.0:
             self.afim_matrix @= mat_inv_translation(-h/2, -w/2)
             self.afim_matrix @= mat_inv_scale(required_scale, required_scale)

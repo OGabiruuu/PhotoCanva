@@ -9,8 +9,6 @@
     let fileLoaded = $derived(!file);    // Controla o enable dos inputs internos da UI desse componente
     let fileExtension = $derived(file ? file.name.split('.').pop()?.toUpperCase() : 'Carregar arquivo');
 
-    $inspect(fileLoaded);
-
     //Garantindo que o campo de input está limpo a cada inicialização.
     // Ele demora para executar em reloads, mas isso parece ser um comportamento do navegador.
     onMount(() => {

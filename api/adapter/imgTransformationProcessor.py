@@ -101,8 +101,6 @@ def apply_pipeline(img, state, mode=APPLY_FROM_RAW):
             final_img = func(final_img, **params)
 
     for transform, params in state["effect"].items():
-        print(f"{transform} with {params}")
-
         func = PROCESS_REGISTRY.get(transform)
         if func:
             final_img = func(final_img, **params)

@@ -26,7 +26,7 @@ def luminosity_transform(light, applied):
             Imagem com cores em preto e branco e um único canal de cor 8 bits
     """
 
-    if applied:
+    if applied and len(light.shape) == 3:
         luminosity = 0.299 * light[:,:,0] + 0.587 * light[:,:,1] + 0.114 * light[:,:,2]
         return np.uint8(luminosity)
     else:
