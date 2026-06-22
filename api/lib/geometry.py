@@ -79,7 +79,6 @@ class GeometryHandler:
         if required_scale != 1.0:
             self.afim_matrix @= mat_inv_scale(required_scale, required_scale)
             self.scale_factor *= required_scale
-            print(f"Updated scale at rotation: {self.scale_factor}")
         self.angle = theta
 
         # Deslocando a imagem de volta para o eixo original

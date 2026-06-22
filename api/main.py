@@ -24,9 +24,7 @@ img_transform_registry = ImgTransformRepository()   # Cache em RAM do estado das
 img_worker = ThreadPoolExecutor(max_workers=4)  # Threads para processar a imagem final
 
 # Lista de origens reconhecidas
-origins = [
-    "http://localhost:5173"
-]
+origins = ['*']
 
 # Configurando o CORS da API
 app.add_middleware(

@@ -1,9 +1,4 @@
 <script>
-    import logoImg from '../assets/camera-retro-org.png';
-    import geometricTransformIcon from '../assets/recursos-org.png';
-    import intensityTransformIcon from '../assets/funcao-quadrada-org.png';
-    import effectTransformIcon from '../assets/brilhos-org.png';
-
     import NavBarButton from '$lib/components/NavBarButton.svelte';
     import {toolSetManager} from '$lib/globalStates/uiStates.svelte'
 </script>
@@ -11,12 +6,12 @@
 
 <div id="navBar-container">
     <!-- <h3>PhotoCanva</h3> -->
-    <img id="navBar-logo" src={logoImg} alt="Logo" title="PhotoCanva">
+    <img id="navBar-logo" src="/camera-retro-org.png" alt="Logo" title="PhotoCanva">
 
     <div id="navBar-options">
         <!-- Transformações geométricas -->
         <NavBarButton
-            toolSetIconSrc={geometricTransformIcon}
+            toolSetIconSrc="/recursos-org.png"
             toolSetName="Transformações geométricas"
             isActive={toolSetManager.activeTool === 'geometric'}
             onClickHandler={() => {toolSetManager.activeTool = 'geometric'}}
@@ -24,7 +19,7 @@
 
         <!-- Transformações de intensidade -->
         <NavBarButton
-            toolSetIconSrc={intensityTransformIcon}
+            toolSetIconSrc="/funcao-quadrada-org.png"
             toolSetName="Transformações de intensidade"
             isActive={toolSetManager.activeTool === 'intensity'}
             onClickHandler={() => {toolSetManager.activeTool = 'intensity'}}
@@ -32,7 +27,7 @@
 
         <!-- Efeitos -->
         <NavBarButton
-            toolSetIconSrc={effectTransformIcon}
+            toolSetIconSrc="/brilhos-org.png"
             toolSetName="Efeitos"
             isActive={toolSetManager.activeTool === 'effect'}
             onClickHandler={() => {toolSetManager.activeTool = 'effect'}}

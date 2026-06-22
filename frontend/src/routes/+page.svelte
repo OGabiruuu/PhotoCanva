@@ -1,6 +1,4 @@
 <script>
-    import logoIcon from '$lib/assets/camera-retro-org.png'
-
     import NavBar from '$lib/components/NavBar.svelte';
     import ToolBar from '$lib/components/ToolBar.svelte';
     import ImgUploader from '$lib/components/ImgUploader.svelte'
@@ -66,7 +64,7 @@
 <!-- HTML da página (em estilo SPA) -->
 {#if !imagLoaded}
     <div id="upload-screen">
-        <img src={logoIcon} alt="Logo do PhotoCanva">
+        <img src='/camera-retro-org.png' alt="Logo do PhotoCanva">
         <h1>PhotoCanva</h1>
         <ImgUploader uploadDataHandler={handleSessionInit}/>
     </div>
