@@ -1,0 +1,31 @@
+services:
+  # Serviço API de processamento de imagens
+  backend:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: photocanva_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+    restart: unless-stopped
+    networks:
+      - photocanva_network
+
+  # Interface gráfica no navegador
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: photocanva_frontend
+    ports:
+      - "80:4173"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - photocanva_network
+networks:
+  photocanva_network:
+    driver: bridge
